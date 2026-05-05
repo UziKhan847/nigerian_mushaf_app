@@ -37,9 +37,7 @@ class MushafPageIndexProvider extends AsyncNotifier<List<PageInfo>> {
           .toSet()
           .toList();
 
-      final surahNames = surahNums
-          .map((num) => num.surahNumToEngName()!)
-          .toList();
+      final surahNames = surahNums.map((n) => n.surahNumToEngName()!).toList();
 
       pagesIndex.add(
         PageInfo(

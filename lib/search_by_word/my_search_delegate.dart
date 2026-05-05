@@ -10,7 +10,7 @@ class MySearchDelegate extends SearchDelegate {
   final isQiyasNotifier = ValueNotifier<bool>(true);
 
   String removeExtras(String text, bool isQiyas) =>
-      isQiyas ? text.removeTahskilExceptSmallMaddLetters : text.removeTahskil;
+      isQiyas ? text.removeTashkilExceptSmallMaddLetters : text.removeTashkil;
 
   Widget getSuggestionWidget(bool isQiyas) {
     if (query.trim().isEmpty) {
