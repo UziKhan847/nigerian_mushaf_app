@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nigerian_mushaf_app/my_themes.dart';
 import 'package:nigerian_mushaf_app/pages/about_page.dart';
 import 'package:nigerian_mushaf_app/pages/index_pages/page_index_page.dart';
 import 'package:nigerian_mushaf_app/pages/index_pages/surah_index_page.dart';
 import 'package:nigerian_mushaf_app/pages/index_pages/verse_index_page.dart';
 import 'package:nigerian_mushaf_app/loading_page.dart';
-import 'package:nigerian_mushaf_app/my_themes.dart';
 import 'package:nigerian_mushaf_app/providers/shared_prefs_provider.dart';
 import 'package:nigerian_mushaf_app/providers/theme_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,13 +14,15 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final prefs = await SharedPreferencesWithCache.create(
-    cacheOptions: SharedPreferencesWithCacheOptions(allowList: {'isDarkMode'}),
+    cacheOptions: SharedPreferencesWithCacheOptions(
+      allowList: sharedPrefsAllowList,
+    ),
   );
 
   runApp(
     ProviderScope(
       overrides: [sharedPrefsProv.overrideWithValue(prefs)],
-      child: MyApp(),
+      child: const MyApp(),
     ),
   );
 }
@@ -30,17 +32,21 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isDarkMode = ref.watch(themeProvider);
+    final themeState = ref.watch(themeProvider);
+    final appTheme = themeState.appTheme;
+    final flutterTheme = MyThemes.themeFor(appTheme);
+    final pageBg = MyThemes.pageBackgroundColor(
+      appTheme,
+      themeState.customBgColor,
+    );
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Nigerian Mushaf App',
-      themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      theme: MyThemes.lightTheme,
-      darkTheme: MyThemes.darkTheme,
+      title: 'Nigerian Mushaf',
+      theme: flutterTheme,
       home: Scaffold(
-        backgroundColor: isDarkMode ? Colors.black : Color(0xffe4d2b7),
-        body: LoadingPage(),
+        backgroundColor: pageBg,
+        body: const LoadingPage(),
       ),
       routes: {
         '/surah_index_page': (context) => const SurahIndexPage(),

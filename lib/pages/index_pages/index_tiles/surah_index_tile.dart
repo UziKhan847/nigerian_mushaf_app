@@ -9,70 +9,74 @@ class SurahIndexTile extends ConsumerWidget {
 
   final SurahInfo surah;
 
-  Text footerText(String text) => Text(text, style: TextStyle(fontSize: 10));
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final mushafScrollCtrlProv = ref.read(mushafScrollCtrlProvider.notifier);
-
-    final isPortrait =
-        MediaQuery.of(context).orientation == Orientation.portrait;
-    final screenSize = MediaQuery.of(context).size;
-    final itemExtent = isPortrait ? screenSize.height : screenSize.width * 2;
+    final ctrl = ref.read(mushafScrollCtrlProvider.notifier);
+    final cs = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-      child: GestureDetector(
-        onTap: () {
-          Navigator.pop(context);
-          mushafScrollCtrlProv.jumpToPage(surah.firstPageNum - 1, itemExtent);
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: Theme.of(context).brightness == Brightness.dark
-                ? Colors.black
-                : Color(0xffe4d2b7),
-          ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: Card(
+        elevation: 0,
+        color: cs.surfaceContainerLow,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () {
+            Navigator.pop(context);
+            ctrl.jumpToPage(surah.firstPageNum - 1);
+          },
           child: Padding(
-            padding: const EdgeInsets.all(6.0),
-            child: Column(
-              spacing: 4,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      '   Surah ${surah.surahName}',
-                      style: TextStyle(fontSize: 14),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 9),
-                      child: Text(
-                        '      سورة ${surah.surahNum.surahNumToArabicName()}',
-                        textDirection: TextDirection.rtl,
-                        style: TextStyle(fontFamily: 'Nigerian', fontSize: 18),
+                // Surah number badge
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: cs.primaryContainer,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      '${surah.surahNum}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: cs.onPrimaryContainer,
                       ),
                     ),
-                  ],
+                  ),
                 ),
-                Divider(
-                  height: 1,
-                  thickness: 1,
-                  color: const Color.fromARGB(255, 155, 155, 155),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      footerText('Surah: ${surah.surahNum}'),
-                      footerText(
-                        'Pages: ${surah.firstPageNum}-${surah.lastPageNum}',
+                      Text(
+                        surah.surahName,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                      footerText('# of Verses: ${surah.lastVerseNum}'),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Pages ${surah.firstPageNum}–${surah.lastPageNum}  ·  ${surah.lastVerseNum} verses',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: cs.onSurface.withAlpha(150),
+                        ),
+                      ),
                     ],
                   ),
+                ),
+                // Arabic name
+                Text(
+                  'سورة ${surah.surahNum.surahNumToArabicName()}',
+                  textDirection: TextDirection.rtl,
+                  style: TextStyle(fontFamily: 'Nigerian', fontSize: 17),
                 ),
               ],
             ),

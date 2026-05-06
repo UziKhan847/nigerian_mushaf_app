@@ -9,72 +9,64 @@ class VerseIndexTile extends ConsumerWidget {
 
   final MushafVerse verse;
 
-  Text footerText(String text) => Text(text, style: TextStyle(fontSize: 10));
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final mushafScrollCtrlProv = ref.read(mushafScrollCtrlProvider.notifier);
-
-    final isPortrait =
-        MediaQuery.of(context).orientation == Orientation.portrait;
-    final screenSize = MediaQuery.of(context).size;
-    final itemExtent = isPortrait ? screenSize.height : screenSize.width * 2;
+    final ctrl = ref.read(mushafScrollCtrlProvider.notifier);
+    final cs = Theme.of(context).colorScheme;
+    final isHeader = verse.verseNum == 0;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-      child: GestureDetector(
-        onTap: () {
-          Navigator.pop(context);
-          mushafScrollCtrlProv.jumpToPage(verse.page - 1, itemExtent);
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: Theme.of(context).brightness == Brightness.dark
-                ? Colors.black
-                : Color(0xffe4d2b7),
-          ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: Card(
+        elevation: 0,
+        color: cs.surfaceContainerLow,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () {
+            Navigator.pop(context);
+            ctrl.jumpToPage(verse.page - 1);
+          },
           child: Padding(
-            padding: const EdgeInsets.all(6.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Column(
-              spacing: 4,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // Arabic verse text
+                Text(
+                  verse.text,
+                  textAlign: TextAlign.right,
+                  textDirection: TextDirection.rtl,
+                  style: TextStyle(
+                    fontFamily: 'Nigerian',
+                    fontSize: 15,
+                    height: 1.8,
+                    color: cs.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 8),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 6),
-                        child: Text(
-                          verse.text,
-                          textDirection: TextDirection.rtl,
-                          style: TextStyle(
-                            fontFamily: 'Nigerian',
-                            fontSize: 10,
-                          ),
-                          softWrap: true,
+                    // Location chip
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: cs.primaryContainer.withAlpha(120),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        isHeader
+                            ? 'Header · ${verse.surahNum.surahNumToEngName()}'
+                            : 'Verse ${verse.verseNum}  ·  Sūrah ${verse.surahNum}  ·  p.${verse.page}',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: cs.onPrimaryContainer,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
                   ],
-                ),
-                Divider(
-                  height: 1,
-                  thickness: 1,
-                  color: const Color.fromARGB(255, 155, 155, 155),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      footerText('Verse: ${verse.verseNum}'),
-                      footerText('Page: ${verse.page}'),
-                      footerText(
-                        'Surah: ${verse.surahNum.surahNumToEngName()} (${verse.surahNum})',
-                      ),
-                    ],
-                  ),
                 ),
               ],
             ),

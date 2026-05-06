@@ -1,5 +1,5 @@
 name: nigerian_mushaf_app
-description: "A new Flutter project."
+description: "Nigerian Mushaf App — Quranic Mushaf reader with PNG page images."
 
 publish_to: 'none' 
 
@@ -14,7 +14,7 @@ dependencies:
   
   cupertino_icons: ^1.0.8
   flutter_html: ^3.0.0
-  flutter_riverpod: ^2.6.1
+  flutter_riverpod: ^3.3.1
   json_annotation: ^4.9.0
   shared_preferences: ^2.5.3
 
@@ -22,7 +22,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
   json_serializable: ^6.11.1
   build_runner: ^2.8.0
 
@@ -32,7 +32,8 @@ flutter:
   assets:
     - assets/pages/
     - assets/
-  
+    - assets/pngs/  
+
   fonts:
     - family: Nigerian
       fonts:

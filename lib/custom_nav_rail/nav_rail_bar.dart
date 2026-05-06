@@ -1,58 +1,75 @@
 import 'package:flutter/material.dart';
 import 'package:nigerian_mushaf_app/custom_nav_rail/nav_items/about_item.dart';
-import 'package:nigerian_mushaf_app/custom_nav_rail/nav_items/dark_mode_item.dart';
 import 'package:nigerian_mushaf_app/custom_nav_rail/nav_items/page_index_item.dart';
 import 'package:nigerian_mushaf_app/custom_nav_rail/nav_items/search_item.dart';
 import 'package:nigerian_mushaf_app/custom_nav_rail/nav_items/surah_index_item.dart';
 import 'package:nigerian_mushaf_app/custom_nav_rail/nav_items/verse_index_item.dart';
+import 'package:nigerian_mushaf_app/custom_nav_rail/nav_items/theme_item.dart';
+import 'package:nigerian_mushaf_app/custom_nav_rail/nav_items/scroll_direction_item.dart';
+import 'package:nigerian_mushaf_app/custom_nav_rail/nav_items/page_mode_item.dart';
+import 'package:nigerian_mushaf_app/custom_nav_rail/nav_items/bg_color_item.dart';
 
 class NavRailBar extends StatelessWidget {
   const NavRailBar({super.key, required this.removeOverlay});
 
-  final void Function() removeOverlay;
+  final VoidCallback removeOverlay;
 
   @override
   Widget build(BuildContext context) {
-    //final screenW = MediaQuery.of(context).size.width;
-    final isPortrait =
-        MediaQuery.of(context).orientation == Orientation.portrait;
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final railBg = isDark
+        ? colorScheme.surfaceContainerHigh
+        : colorScheme.surfaceContainerLowest;
 
     return Align(
       alignment: Alignment.centerRight,
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(16),
-            bottomLeft: Radius.circular(16),
+          color: railBg,
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            bottomLeft: Radius.circular(20),
           ),
-          color: Theme.of(context).brightness == Brightness.dark
-              ? const Color.fromARGB(255, 37, 0, 0)
-              : const Color.fromARGB(255, 255, 222, 222),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(50),
+              blurRadius: 12,
+              offset: const Offset(-2, 0),
+            ),
+          ],
         ),
-        //width: screenW * 0.2,
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: Column(
-            spacing: 50,
-            mainAxisSize: isPortrait ? MainAxisSize.min : MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SearchItem(removeOverlay: removeOverlay),
-
-              PageIndexItem(removeOverlay: removeOverlay),
-
-              SurahIndexItem(removeOverlay: removeOverlay),
-
-              VerseIndexItem(removeOverlay: removeOverlay),
-
-              DarkModeItem(),
-
-              AboutItem(removeOverlay: removeOverlay),
-            ],
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
+        child: IntrinsicWidth(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SearchItem(removeOverlay: removeOverlay),
+                _divider(),
+                PageIndexItem(removeOverlay: removeOverlay),
+                SurahIndexItem(removeOverlay: removeOverlay),
+                VerseIndexItem(removeOverlay: removeOverlay),
+                _divider(),
+                ThemeItem(removeOverlay: removeOverlay),
+                BgColorItem(removeOverlay: removeOverlay),
+                _divider(),
+                ScrollDirectionItem(),
+                PageModeItem(),
+                _divider(),
+                AboutItem(removeOverlay: removeOverlay),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+
+  Widget _divider() => const Padding(
+    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+    child: Divider(height: 1, thickness: 0.5),
+  );
 }

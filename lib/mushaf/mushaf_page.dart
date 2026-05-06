@@ -1,37 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:nigerian_mushaf_app/extensions/num_extension.dart';
-import 'package:nigerian_mushaf_app/mushaf/mushaf_tiles/mushaf_header_tile.dart';
-import 'package:nigerian_mushaf_app/mushaf/mushaf_tiles/mushaf_page_text_tile.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nigerian_mushaf_app/my_themes.dart';
+import 'package:nigerian_mushaf_app/providers/theme_provider.dart';
 
-class MushafPage extends StatelessWidget {
+class MushafPage extends ConsumerWidget {
   const MushafPage({super.key, required this.index});
 
-  final int index;
+  final int index; // 0-based
 
   @override
-  Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-    final screenH = screenSize.height;
-    final screenW = screenSize.width;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeState = ref.watch(themeProvider);
+    final colorFilter = MyThemes.pageColorFilter(
+      themeState.appTheme,
+      themeState.customBgColor,
+    );
+    final bgColor = MyThemes.pageBackgroundColor(
+      themeState.appTheme,
+      themeState.customBgColor,
+    );
+
+    Widget image = Image.asset(
+      'assets/pngs/${index + 1}.png',
+      fit: BoxFit.contain,
+      // Render at native resolution for sharpness; Flutter will downscale.
+      filterQuality: FilterQuality.medium,
+      // Provides a placeholder until the image is decoded.
+      frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+        if (wasSynchronouslyLoaded || frame != null) return child;
+        return const Center(child: CircularProgressIndicator(strokeWidth: 1.5));
+      },
+    );
+
+    if (colorFilter != null) {
+      image = ColorFiltered(colorFilter: colorFilter, child: image);
+    }
 
     return Container(
-      decoration: BoxDecoration(
-        border: BoxBorder.fromLTRB(bottom: BorderSide(color: Colors.black)),
-      ),
-      width: screenW,
-      height: screenH,
-      child: Column(
-        spacing: screenH * 0.015,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          MushafHeaderTile(maxWidth: screenW, index: index),
-          MushafPageTextTile(maxWidth: screenW, index: index),
-          Text(
-            (index + 1).toArabic,
-            style: TextStyle(fontSize: screenW * 0.035),
-          ),
-        ],
-      ),
+      color: bgColor,
+      alignment: Alignment.center,
+      child: image,
     );
   }
 }

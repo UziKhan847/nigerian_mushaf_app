@@ -18,193 +18,132 @@ class PaginatedSuggestions extends StatefulWidget {
 }
 
 class _PaginatedSuggestionsState extends State<PaginatedSuggestions> {
-  late int visibleCount;
-  late final scrollController = ScrollController();
-  final int numOfEntries = 30;
+  late int _visibleCount;
+  final _scrollCtrl = ScrollController();
+  static const _pageSize = 30;
 
   @override
   void initState() {
     super.initState();
-    visibleCount = math.min(numOfEntries, widget.suggestions.length);
-
-    scrollController.addListener(() {
-      final maxScrollExtent = scrollController.position.maxScrollExtent;
-
-      final scrollPos = scrollController.position.pixels;
-
-      if (scrollPos >= maxScrollExtent - 200) {
-        loadMore();
-      }
-    });
+    _visibleCount = math.min(_pageSize, widget.suggestions.length);
+    _scrollCtrl.addListener(_onScroll);
   }
 
   @override
   void didUpdateWidget(covariant PaginatedSuggestions oldWidget) {
     super.didUpdateWidget(oldWidget);
-
     if (oldWidget.suggestions != widget.suggestions) {
-      visibleCount = math.min(numOfEntries, widget.suggestions.length);
-    } else {
-      if (visibleCount > widget.suggestions.length) {
-        visibleCount = widget.suggestions.length;
-      }
+      setState(() {
+        _visibleCount = math.min(_pageSize, widget.suggestions.length);
+      });
     }
-    setState(() {});
   }
 
-  void loadMore() {
-    if (!mounted) {
-      return;
+  void _onScroll() {
+    final pos = _scrollCtrl.position;
+    if (pos.pixels >= pos.maxScrollExtent - 300) {
+      _loadMore();
     }
+  }
 
-    visibleCount = math.min(
-      widget.suggestions.length,
-      visibleCount + numOfEntries,
-    );
+  void _loadMore() {
+    final next = math.min(widget.suggestions.length, _visibleCount + _pageSize);
+    if (next != _visibleCount) setState(() => _visibleCount = next);
+  }
 
-    setState(() {});
+  @override
+  void dispose() {
+    _scrollCtrl.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     if (widget.suggestions.isEmpty) {
       return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text('No matches found', style: TextStyle(fontSize: 16)),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.search_off,
+              size: 56,
+              color: Theme.of(context).colorScheme.onSurface.withAlpha(60),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'No matches found',
+              style: TextStyle(
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.onSurface.withAlpha(140),
+              ),
+            ),
+          ],
         ),
       );
     }
 
-    return ListView.separated(
-      controller: scrollController,
-      itemCount: visibleCount,
-      separatorBuilder: (_, _) => const Divider(height: 1, thickness: 1),
-      itemBuilder: (_, index) {
-        return VerseResultTile(
-          close: widget.close,
-          verse: widget.suggestions[index],
-        );
-      },
+    final count = widget.suggestions.length;
+    final visible = math.min(_visibleCount, count);
+
+    return CustomScrollView(
+      controller: _scrollCtrl,
+      slivers: [
+        // Result count header
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Text(
+              '$count result${count == 1 ? '' : 's'}',
+              style: TextStyle(
+                fontSize: 13,
+                color: Theme.of(context).colorScheme.onSurface.withAlpha(160),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ),
+
+        SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              if (index.isOdd) {
+                return Divider(
+                  height: 1,
+                  thickness: 0.5,
+                  indent: 20,
+                  endIndent: 20,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.outlineVariant.withAlpha(120),
+                );
+              }
+              final verseIndex = index ~/ 2;
+              return VerseResultTile(
+                close: widget.close,
+                verse: widget.suggestions[verseIndex],
+              );
+            },
+            childCount: visible * 2 - 1,
+          ),
+        ),
+
+        // Load-more footer
+        if (visible < count)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Center(
+                child: TextButton.icon(
+                  onPressed: _loadMore,
+                  icon: const Icon(Icons.expand_more),
+                  label: Text(
+                    'Load more  (${count - visible} remaining)',
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }
-
-// class PaginatedSuggestions extends StatefulWidget {
-//   const PaginatedSuggestions({
-//     super.key,
-//     required this.suggestions,
-//     this.pageSize = 30,
-//     this.initialLoadDelay = const Duration(milliseconds: 150),
-//     required this.close,
-//   });
-
-//   final List<MushafVerse> suggestions;
-//   final int pageSize;
-//   final Duration initialLoadDelay;
-//   final void Function(BuildContext, dynamic) close;
-
-//   @override
-//   State<PaginatedSuggestions> createState() => _PaginatedSuggestionsState();
-// }
-
-// class _PaginatedSuggestionsState extends State<PaginatedSuggestions> {
-//   late int _visibleCount;
-//   bool _isLoadingInitial = true;
-//   bool _isLoadingMore = false;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _visibleCount = math.min(widget.pageSize, widget.suggestions.length);
-//     Future.delayed(widget.initialLoadDelay, () {
-//       if (mounted) setState(() => _isLoadingInitial = false);
-//     });
-//   }
-
-//   @override
-//   void didUpdateWidget(covariant PaginatedSuggestions oldWidget) {
-//     super.didUpdateWidget(oldWidget);
-
-//     if (oldWidget.suggestions != widget.suggestions) {
-//       setState(() {
-//         _visibleCount = math.min(widget.pageSize, widget.suggestions.length);
-//         _isLoadingMore = false;
-//       });
-//     } else if (_visibleCount > widget.suggestions.length) {
-//       setState(() {
-//         _visibleCount = widget.suggestions.length;
-//       });
-//     }
-//   }
-
-//   // bool get _hasMore =>
-//   //     math.min(_visibleCount, widget.suggestions.length) <
-//   //     widget.suggestions.length;
-
-//   Future<void> _loadMore() async {
-//     if (_isLoadingMore) return;
-//     setState(() => _isLoadingMore = true);
-//     await Future.delayed(const Duration(milliseconds: 180));
-//     if (!mounted) return;
-//     setState(() {
-//       _visibleCount = math.min(
-//         widget.suggestions.length,
-//         _visibleCount + widget.pageSize,
-//       );
-//       _isLoadingMore = false;
-//     });
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     if (_isLoadingInitial) {
-//       return const Center(child: CircularProgressIndicator());
-//     }
-
-//     if (widget.suggestions.isEmpty) {
-//       return const Center(
-//         child: Padding(
-//           padding: EdgeInsets.all(16),
-//           child: Text('No matches found', style: TextStyle(fontSize: 16)),
-//         ),
-//       );
-//     }
-
-//     final currentVisible = math.min(_visibleCount, widget.suggestions.length);
-//     final hasMore = currentVisible < widget.suggestions.length;
-//     final totalTiles = currentVisible + (hasMore ? 1 : 0);
-
-//     return ListView.separated(
-//       itemCount: totalTiles,
-//       separatorBuilder: (_, __) => const Divider(height: 1, thickness: 1),
-//       itemBuilder: (context, index) {
-//         if (index < currentVisible) {
-//           final verse = widget.suggestions[index];
-
-//           return VerseResultTile(close: widget.close, verse: verse);
-//         } else {
-//           // "Load more" tile
-//           if (_isLoadingMore) {
-//             return const Padding(
-//               padding: EdgeInsets.symmetric(vertical: 16.0),
-//               child: Center(child: CircularProgressIndicator()),
-//             );
-//           }
-
-//           final remaining = widget.suggestions.length - currentVisible;
-//           final label = remaining > widget.pageSize
-//               ? 'Load ${widget.pageSize} more results'
-//               : 'Load $remaining more result${remaining == 1 ? '' : 's'}';
-
-//           return ListTile(
-//             title: Center(
-//               child: Text(label, style: const TextStyle(fontSize: 16)),
-//             ),
-//             onTap: _loadMore,
-//           );
-//         }
-//       },
-//     );
-//   }
-// }
