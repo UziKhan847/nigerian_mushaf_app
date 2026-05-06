@@ -47,3 +47,4 @@ app.*.map.json
 /lib/mushaf/mushaf_verses_data_models/mushaf_verses_data.g.dart
 /lib/mushaf/mushaf_verses_data_models/mushaf_verse.g.dart
 /fonts
+/assets
