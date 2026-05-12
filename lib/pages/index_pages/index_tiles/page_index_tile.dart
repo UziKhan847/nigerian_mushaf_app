@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nigerian_mushaf_app/pages/index_pages/index_models/page_info.dart';
-import 'package:nigerian_mushaf_app/providers/mushaf_scroll_ctrl_provider.dart';
+import 'package:nigerian_mushaf_app/providers/mushaf_navigate_provider.dart';
 
 class PageIndexTile extends ConsumerWidget {
   const PageIndexTile({super.key, required this.page});
@@ -10,7 +10,7 @@ class PageIndexTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final ctrl = ref.read(mushafScrollCtrlProvider.notifier);
+    final navigate = ref.read(mushafNavigateProvider);
     final cs = Theme.of(context).colorScheme;
 
     final namesBuffer = StringBuffer();
@@ -32,13 +32,12 @@ class PageIndexTile extends ConsumerWidget {
           borderRadius: BorderRadius.circular(12),
           onTap: () {
             Navigator.pop(context);
-            ctrl.jumpToPage(page.pageNum - 1);
+            navigate(context, page.pageNum - 1);
           },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
               children: [
-                // Page number badge
                 Container(
                   width: 48,
                   height: 48,
@@ -59,21 +58,15 @@ class PageIndexTile extends ConsumerWidget {
                 ),
                 const SizedBox(width: 14),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        namesBuffer.toString(),
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                    ],
+                  child: Text(
+                    namesBuffer.toString(),
+                    style: const TextStyle(fontSize: 14),
                   ),
                 ),
-                // Arabic page label
                 Text(
                   'الصفحة ${page.pageNum}',
                   textDirection: TextDirection.rtl,
-                  style: TextStyle(fontFamily: 'Nigerian', fontSize: 16),
+                  style: const TextStyle(fontFamily: 'Nigerian', fontSize: 16),
                 ),
               ],
             ),

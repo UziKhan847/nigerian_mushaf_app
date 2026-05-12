@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nigerian_mushaf_app/extensions/num_extension.dart';
 import 'package:nigerian_mushaf_app/pages/index_pages/index_models/surah_info.dart';
-import 'package:nigerian_mushaf_app/providers/mushaf_scroll_ctrl_provider.dart';
+import 'package:nigerian_mushaf_app/providers/mushaf_navigate_provider.dart';
 
 class SurahIndexTile extends ConsumerWidget {
   const SurahIndexTile({super.key, required this.surah});
@@ -11,7 +11,7 @@ class SurahIndexTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final ctrl = ref.read(mushafScrollCtrlProvider.notifier);
+    final navigate = ref.read(mushafNavigateProvider);
     final cs = Theme.of(context).colorScheme;
 
     return Padding(
@@ -24,13 +24,12 @@ class SurahIndexTile extends ConsumerWidget {
           borderRadius: BorderRadius.circular(12),
           onTap: () {
             Navigator.pop(context);
-            ctrl.jumpToPage(surah.firstPageNum - 1);
+            navigate(context, surah.firstPageNum - 1);
           },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
               children: [
-                // Surah number badge
                 Container(
                   width: 40,
                   height: 40,
@@ -72,11 +71,10 @@ class SurahIndexTile extends ConsumerWidget {
                     ],
                   ),
                 ),
-                // Arabic name
                 Text(
                   'سورة ${surah.surahNum.surahNumToArabicName()}',
                   textDirection: TextDirection.rtl,
-                  style: TextStyle(fontFamily: 'Nigerian', fontSize: 17),
+                  style: const TextStyle(fontFamily: 'Nigerian', fontSize: 17),
                 ),
               ],
             ),

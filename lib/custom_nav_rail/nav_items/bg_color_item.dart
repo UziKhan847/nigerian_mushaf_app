@@ -12,7 +12,6 @@ class BgColorItem extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeState = ref.watch(themeProvider);
-    // Only active/relevant when theme is custom.
     final isCustom = themeState.appTheme == AppTheme.custom;
 
     return NavRailButton(
@@ -20,40 +19,51 @@ class BgColorItem extends ConsumerWidget {
       label: 'Page\nColour',
       isActive: isCustom,
       onPressed: () {
+        // Capture context BEFORE overlay removal unmounts this widget.
+        final capturedContext = context;
+        final currentColor = themeState.customBgColor;
         removeOverlay();
-        showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          builder: (_) => _BgColorSheet(
-            initialColor: themeState.customBgColor,
-            onColorChanged: (c) {
-              ref.read(themeProvider.notifier).setCustomBgColor(c);
-              // Auto-activate custom theme when user picks a colour.
-              if (themeState.appTheme != AppTheme.custom) {
+        _showColorPicker(capturedContext, currentColor);
+      },
+    );
+  }
+
+  void _showColorPicker(BuildContext context, Color initialColor) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      // Consumer owns its own ref — safe even after nav rail is unmounted.
+      builder: (_) => Consumer(
+        builder: (ctx, ref, _) {
+          final state = ref.watch(themeProvider);
+          return _BgColorSheet(
+            currentColor: state.customBgColor,
+            onColorChanged: (color) {
+              ref.read(themeProvider.notifier).setCustomBgColor(color);
+              // Auto-switch to custom theme so the colour is applied immediately.
+              if (state.appTheme != AppTheme.custom) {
                 ref.read(themeProvider.notifier).setTheme(AppTheme.custom);
               }
             },
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Colour picker sheet
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _BgColorSheet extends StatefulWidget {
   const _BgColorSheet({
-    required this.initialColor,
+    required this.currentColor,
     required this.onColorChanged,
   });
 
-  final Color initialColor;
+  final Color currentColor;
   final ValueChanged<Color> onColorChanged;
 
   @override
@@ -66,10 +76,17 @@ class _BgColorSheetState extends State<_BgColorSheet> {
   @override
   void initState() {
     super.initState();
-    _hsl = HSLColor.fromColor(widget.initialColor);
+    _hsl = HSLColor.fromColor(widget.currentColor);
   }
 
-  Color get _current => _hsl.toColor();
+  @override
+  void didUpdateWidget(covariant _BgColorSheet old) {
+    super.didUpdateWidget(old);
+    // Keep slider positions in sync if the colour changes externally.
+    if (old.currentColor != widget.currentColor) {
+      _hsl = HSLColor.fromColor(widget.currentColor);
+    }
+  }
 
   void _update(HSLColor hsl) {
     setState(() => _hsl = hsl);
@@ -79,6 +96,7 @@ class _BgColorSheetState extends State<_BgColorSheet> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final current = _hsl.toColor();
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -97,12 +115,13 @@ class _BgColorSheetState extends State<_BgColorSheet> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.grey.shade400,
+                color: cs.onSurfaceVariant.withAlpha(80),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
           ),
           const SizedBox(height: 20),
+
           Row(
             children: [
               Text(
@@ -110,30 +129,40 @@ class _BgColorSheetState extends State<_BgColorSheet> {
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const Spacer(),
-              // Preview swatch
+              // Live preview swatch
               Container(
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: _current,
+                  color: current,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: cs.outline.withAlpha(80)),
+                  border: Border.all(
+                    color: cs.outline.withAlpha(80),
+                  ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 24),
 
-          // Hue slider
           _SliderRow(
             label: 'Hue',
-            value: _hsl.hue / 360,
-            gradient: _hueGradient(),
-            onChanged: (v) => _update(_hsl.withHue(v * 360)),
+            value: _hsl.hue / 360.0,
+            gradient: LinearGradient(
+              colors: List.generate(
+                13,
+                (i) => HSLColor.fromAHSL(
+                  1,
+                  i * 30.0,
+                  _hsl.saturation.clamp(0.1, 1.0),
+                  _hsl.lightness,
+                ).toColor(),
+              ),
+            ),
+            onChanged: (v) => _update(_hsl.withHue(v * 360.0)),
           ),
           const SizedBox(height: 16),
 
-          // Saturation slider
           _SliderRow(
             label: 'Saturation',
             value: _hsl.saturation,
@@ -145,7 +174,6 @@ class _BgColorSheetState extends State<_BgColorSheet> {
           ),
           const SizedBox(height: 16),
 
-          // Lightness slider
           _SliderRow(
             label: 'Lightness',
             value: _hsl.lightness,
@@ -163,11 +191,14 @@ class _BgColorSheetState extends State<_BgColorSheet> {
           const SizedBox(height: 10),
           Wrap(
             spacing: 10,
+            runSpacing: 10,
             children: _presets.map((c) {
+              final selected =
+                  (current.r - c.r).abs() < 2 &&
+                  (current.g - c.g).abs() < 2 &&
+                  (current.b - c.b).abs() < 2;
               return GestureDetector(
-                onTap: () {
-                  _update(HSLColor.fromColor(c));
-                },
+                onTap: () => _update(HSLColor.fromColor(c)),
                 child: Container(
                   width: 36,
                   height: 36,
@@ -175,10 +206,8 @@ class _BgColorSheetState extends State<_BgColorSheet> {
                     color: c,
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: _current == c
-                          ? cs.primary
-                          : cs.outline.withAlpha(80),
-                      width: _current == c ? 2.5 : 1,
+                      color: selected ? cs.primary : cs.outline.withAlpha(80),
+                      width: selected ? 2.5 : 1,
                     ),
                   ),
                 ),
@@ -192,26 +221,20 @@ class _BgColorSheetState extends State<_BgColorSheet> {
   }
 
   static const List<Color> _presets = [
-    Color(0xFFFFFFFF), // white
-    Color(0xFFE4D2B7), // parchment
-    Color(0xFFD4C5A0), // warm cream
+    Color(0xFFFFFFFF),
+    Color(0xFFE4D2B7), // warm parchment
+    Color(0xFFD4C5A0), // aged cream
     Color(0xFFC8E6C9), // soft green
     Color(0xFFBBDEFB), // soft blue
     Color(0xFFF8BBD0), // soft pink
     Color(0xFFE1BEE7), // soft lavender
     Color(0xFFFFF9C4), // soft yellow
     Color(0xFF263238), // dark slate
-    Color(0xFF1A1A1A), // near black
+    Color(0xFF1A1A1A), // near-black
   ];
-
-  LinearGradient _hueGradient() => LinearGradient(
-    colors: List.generate(
-      13,
-      (i) => HSLColor.fromAHSL(1, i * 30.0, _hsl.saturation, _hsl.lightness)
-          .toColor(),
-    ),
-  );
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 class _SliderRow extends StatelessWidget {
   const _SliderRow({
@@ -236,17 +259,18 @@ class _SliderRow extends StatelessWidget {
         ClipRRect(
           borderRadius: BorderRadius.circular(6),
           child: Container(
-            height: 20,
+            height: 24,
             decoration: BoxDecoration(gradient: gradient),
-            child: Slider(
-              value: value,
-              onChanged: onChanged,
-              activeColor: Colors.transparent,
-              inactiveColor: Colors.transparent,
-              thumbColor: Colors.white,
-              overlayColor: WidgetStatePropertyAll(
-                Colors.white.withAlpha(40),
+            child: SliderTheme(
+              data: SliderTheme.of(context).copyWith(
+                trackHeight: 24,
+                activeTrackColor: Colors.transparent,
+                inactiveTrackColor: Colors.transparent,
+                thumbColor: Colors.white,
+                overlayColor: Colors.white.withAlpha(40),
+                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
               ),
+              child: Slider(value: value, onChanged: onChanged),
             ),
           ),
         ),

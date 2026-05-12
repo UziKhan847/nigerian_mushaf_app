@@ -8,6 +8,7 @@ import 'package:nigerian_mushaf_app/custom_nav_rail/nav_items/theme_item.dart';
 import 'package:nigerian_mushaf_app/custom_nav_rail/nav_items/scroll_direction_item.dart';
 import 'package:nigerian_mushaf_app/custom_nav_rail/nav_items/page_mode_item.dart';
 import 'package:nigerian_mushaf_app/custom_nav_rail/nav_items/bg_color_item.dart';
+import 'package:nigerian_mushaf_app/custom_nav_rail/nav_items/dual_page_item.dart';
 
 class NavRailBar extends StatelessWidget {
   const NavRailBar({super.key, required this.removeOverlay});
@@ -16,33 +17,31 @@ class NavRailBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    final railBg = isDark
-        ? colorScheme.surfaceContainerHigh
-        : colorScheme.surfaceContainerLowest;
+    final cs      = Theme.of(context).colorScheme;
+    final isDark  = Theme.of(context).brightness == Brightness.dark;
+    final railBg  = isDark
+        ? cs.surfaceContainerHigh
+        : cs.surfaceContainerLowest;
 
     return Align(
       alignment: Alignment.centerRight,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        decoration: BoxDecoration(
-          color: railBg,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20),
-            bottomLeft: Radius.circular(20),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(50),
-              blurRadius: 12,
-              offset: const Offset(-2, 0),
+      child: IntrinsicWidth(
+        child: Container(
+          decoration: BoxDecoration(
+            color: railBg,
+            borderRadius: const BorderRadius.only(
+              topLeft:    Radius.circular(20),
+              bottomLeft: Radius.circular(20),
             ),
-          ],
-        ),
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
-        child: IntrinsicWidth(
+            boxShadow: [
+              BoxShadow(
+                color:      Colors.black.withAlpha(50),
+                blurRadius: 12,
+                offset:     const Offset(-2, 0),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -58,6 +57,7 @@ class NavRailBar extends StatelessWidget {
                 _divider(),
                 ScrollDirectionItem(),
                 PageModeItem(),
+                DualPageItem(),
                 _divider(),
                 AboutItem(removeOverlay: removeOverlay),
               ],

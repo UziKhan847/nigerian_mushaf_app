@@ -22,7 +22,7 @@ class MushafPgsTextNotifier extends AsyncNotifier<List<String>> {
 
   List<String> buildPagesText(
     List<MushafVerse> mushafVerses, {
-    int totalPages = 480,
+    int totalPages = 604,
   }) {
     final Map<int, List<MushafVerse>> pagesMap = {};
     for (final verse in mushafVerses) {

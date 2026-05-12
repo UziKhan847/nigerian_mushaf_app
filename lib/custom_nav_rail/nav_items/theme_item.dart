@@ -17,84 +17,95 @@ class ThemeItem extends ConsumerWidget {
       icon: currentTheme.icon,
       label: 'Theme',
       onPressed: () {
+        // Capture context BEFORE removing the overlay (which unmounts this widget).
+        final capturedContext = context;
         removeOverlay();
-        _showThemePicker(context, ref, currentTheme);
+        _showThemePicker(capturedContext, currentTheme);
       },
     );
   }
 
-  void _showThemePicker(
-    BuildContext context,
-    WidgetRef ref,
-    AppTheme current,
-  ) {
+  void _showThemePicker(BuildContext context, AppTheme current) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (_) => _ThemePickerSheet(current: current, ref: ref),
+      // Consumer gives the sheet its own ref, independent of the nav rail widget.
+      builder: (_) => Consumer(
+        builder: (ctx, ref, _) => _ThemePickerSheet(
+          current: ref.watch(themeProvider).appTheme,
+          onSelect: (theme) {
+            ref.read(themeProvider.notifier).setTheme(theme);
+            Navigator.pop(ctx);
+          },
+        ),
+      ),
     );
   }
 }
 
 class _ThemePickerSheet extends StatelessWidget {
-  const _ThemePickerSheet({required this.current, required this.ref});
+  const _ThemePickerSheet({
+    required this.current,
+    required this.onSelect,
+  });
 
   final AppTheme current;
-  final WidgetRef ref;
+  final ValueChanged<AppTheme> onSelect;
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Handle
           Center(
             child: Container(
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.grey.shade400,
+                color: cs.onSurfaceVariant.withAlpha(80),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
           ),
           const SizedBox(height: 20),
-          Text(
-            'Choose Theme',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 16),
-          ...AppTheme.values.map((theme) {
+          Text('Choose Theme', style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 12),
+          // Wrap in a scroll view so the list doesn't overflow on small screens.
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.60,
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: AppTheme.values.map((theme) {
             final isSelected = theme == current;
             return ListTile(
               leading: Icon(
                 theme.icon,
-                color: isSelected
-                    ? Theme.of(context).colorScheme.primary
-                    : null,
+                color: isSelected ? cs.primary : cs.onSurfaceVariant,
               ),
               title: Text(theme.label),
               trailing: isSelected
-                  ? Icon(
-                      Icons.check_circle,
-                      color: Theme.of(context).colorScheme.primary,
-                    )
+                  ? Icon(Icons.check_circle, color: cs.primary)
                   : null,
               selected: isSelected,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              onTap: () {
-                ref.read(themeProvider.notifier).setTheme(theme);
-                Navigator.pop(context);
-              },
+              onTap: () => onSelect(theme),
             );
-          }),
+          }).toList(),
+              ),
+            ),
+          ),
         ],
       ),
     );

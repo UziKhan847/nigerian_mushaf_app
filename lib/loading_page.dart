@@ -15,26 +15,40 @@ class LoadingPage extends ConsumerStatefulWidget {
 }
 
 class _LoadingPageState extends ConsumerState<LoadingPage> {
-  late final Future<void> _data;
+  Future<void>? _loadFuture;
 
   @override
-  void initState() {
-    super.initState();
-    _data = _loadAll();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _loadFuture ??= _loadSequentially();
   }
 
-  Future<void> _loadAll() async {
+  /// Load the four CORE providers in strict order.
+  ///
+  /// mushafPgHeaderProvider is intentionally excluded from this chain.
+  /// In the original app it was never pre-loaded — it starts lazily when the
+  /// first MushafPage widget builds its header bar.  Blocking on it here
+  /// caused the loading screen to hang indefinitely.
+  Future<void> _loadSequentially() async {
+    // 1. Raw verse data — everything else depends on this.
     await ref.read(mushafVersesDataProvider.future);
+
+    // 2. Page text strings (depends on verses).
     await ref.read(mushafPgsTextProvider.future);
-    await ref.read(mushafPgHeaderProvider.future);
+
+    // 3. Navigation indices (both depend on verses).
     await ref.read(mushafSurahIndexProvider.future);
     await ref.read(mushafPageIndexProvider.future);
+
+    // Kick off the header provider in the background so it is warm by the
+    // time the first page is rendered, but do NOT await it.
+    ref.read(mushafPgHeaderProvider);
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<void>(
-      future: _data,
+      future: _loadFuture,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return _ErrorView(error: snapshot.error.toString());
@@ -48,7 +62,7 @@ class _LoadingPageState extends ConsumerState<LoadingPage> {
   }
 }
 
-// ── Splash ─────────────────────────────────────────────────────────────────
+// ── Splash ──────────────────────────────────────────────────────────────────
 
 class _SplashView extends StatelessWidget {
   const _SplashView();
@@ -74,14 +88,18 @@ class _SplashView extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             'Nigerian Mushaf',
-            style: TextStyle(fontSize: 16, color: cs.onSurface.withAlpha(160)),
+            style: TextStyle(
+              fontSize: 16,
+              color: cs.onSurface.withAlpha(160),
+            ),
           ),
           const SizedBox(height: 40),
           SizedBox(
-            width: 48,
+            width: 120,
             child: LinearProgressIndicator(
               color: cs.primary,
               backgroundColor: cs.primary.withAlpha(40),
+              borderRadius: BorderRadius.circular(4),
             ),
           ),
         ],
@@ -90,7 +108,7 @@ class _SplashView extends StatelessWidget {
   }
 }
 
-// ── Error ──────────────────────────────────────────────────────────────────
+// ── Error ────────────────────────────────────────────────────────────────────
 
 class _ErrorView extends StatelessWidget {
   const _ErrorView({required this.error});

@@ -18,7 +18,7 @@ class MushafPageIndexProvider extends AsyncNotifier<List<PageInfo>> {
 
     final pagesIndex = <PageInfo>[];
 
-    for (int i = 0; i < 480; i++) {
+    for (int i = 0; i < 604; i++) {
       final pageNum = i + 1;
 
       // final firstVerseIndex = mushafVerses.indexWhere(

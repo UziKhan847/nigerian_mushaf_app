@@ -1,0 +1,173 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Nigerian Mushaf",
+  "@appTitle": { "description": "The application title shown in the OS and splash screen." },
+
+  "appSubtitle": "المصحف النيجيري",
+  "@appSubtitle": { "description": "Arabic subtitle shown on the splash screen." },
+
+  "appBy": "by Quran Quorum",
+  "@appBy": { "description": "Attribution string shown beneath the app title." },
+
+  "navSearch": "Search",
+  "@navSearch": { "description": "Nav rail label for the search button." },
+
+  "navPageIndex": "Pages",
+  "@navPageIndex": { "description": "Nav rail label for the page index." },
+
+  "navSurahIndex": "Sūrahs",
+  "@navSurahIndex": { "description": "Nav rail label for the surah index." },
+
+  "navVerseIndex": "Verses",
+  "@navVerseIndex": { "description": "Nav rail label for the verse index." },
+
+  "navTheme": "Theme",
+  "@navTheme": { "description": "Nav rail label for the theme picker." },
+
+  "navPageColour": "Page\nColour",
+  "@navPageColour": { "description": "Nav rail label for the custom background colour picker." },
+
+  "navVertical": "Vertical",
+  "@navVertical": { "description": "Nav rail label shown when scroll direction is vertical." },
+
+  "navHorizontal": "Horizontal",
+  "@navHorizontal": { "description": "Nav rail label shown when scroll direction is horizontal." },
+
+  "navSlideMode": "Slide\nMode",
+  "@navSlideMode": { "description": "Nav rail label shown when page mode is slide (smooth scroll)." },
+
+  "navSwipeMode": "Swipe\nMode",
+  "@navSwipeMode": { "description": "Nav rail label shown when page mode is swipe (snap to page)." },
+
+  "navDualPage": "Dual\nPage",
+  "@navDualPage": { "description": "Nav rail label for the dual-page spread toggle." },
+
+  "navAbout": "About",
+  "@navAbout": { "description": "Nav rail label for the About page." },
+
+  "themePickerTitle": "Choose Theme",
+  "@themePickerTitle": { "description": "Title of the theme picker bottom sheet." },
+
+  "themeLight": "Light",
+  "@themeLight": { "description": "Label for the Light theme option." },
+
+  "themeDark": "Dark",
+  "@themeDark": { "description": "Label for the Dark theme option." },
+
+  "themeMonochrome": "Monochrome",
+  "@themeMonochrome": { "description": "Label for the Monochrome theme option." },
+
+  "themeOled": "OLED Black",
+  "@themeOled": { "description": "Label for the OLED Black theme option." },
+
+  "themeCustom": "Custom",
+  "@themeCustom": { "description": "Label for the Custom theme option (user-defined background colour)." },
+
+  "colourPickerTitle": "Page Background Colour",
+  "@colourPickerTitle": { "description": "Title of the custom page background colour picker sheet." },
+
+  "colourPickerHue": "Hue",
+  "@colourPickerHue": { "description": "Label for the hue slider in the colour picker." },
+
+  "colourPickerSaturation": "Saturation",
+  "@colourPickerSaturation": { "description": "Label for the saturation slider in the colour picker." },
+
+  "colourPickerLightness": "Lightness",
+  "@colourPickerLightness": { "description": "Label for the lightness slider in the colour picker." },
+
+  "colourPickerPresets": "Presets",
+  "@colourPickerPresets": { "description": "Section label for the preset colours row." },
+
+  "searchHint": "Search Mushaf…",
+  "@searchHint": { "description": "Placeholder text shown in the search bar." },
+
+  "searchModeQiyas": "Qiyāsī",
+  "@searchModeQiyas": { "description": "Label for the Qiyas (standard Arabic spelling) search mode." },
+
+  "searchModeUthmani": "Uthmānī",
+  "@searchModeUthmani": { "description": "Label for the Uthmani script search mode." },
+
+  "searchModeRoot": "Root",
+  "@searchModeRoot": { "description": "Label for the Arabic root-based search mode." },
+
+  "searchResultCount": "{count, plural, =0{No results} =1{1 result} other{{count} results}}",
+  "@searchResultCount": {
+    "description": "Number of search results found.",
+    "placeholders": {
+      "count": { "type": "int", "example": "42" }
+    }
+  },
+
+  "searchNoResults": "No matches found",
+  "@searchNoResults": { "description": "Message shown when the search returns no results." },
+
+  "searchLoadMore": "Load more  ({remaining} remaining)",
+  "@searchLoadMore": {
+    "description": "Button label to load more paginated search results.",
+    "placeholders": {
+      "remaining": { "type": "int", "example": "12" }
+    }
+  },
+
+  "searchHintQiyas": "Type Arabic text to search by standard spelling.\n\nTashkīl (diacritics) is ignored except for small madd letters.",
+  "@searchHintQiyas": { "description": "Empty-state hint for Qiyas search mode." },
+
+  "searchHintUthmani": "Type Arabic text to search by Uthmānī script.\n\nAll diacritics are stripped before matching.",
+  "@searchHintUthmani": { "description": "Empty-state hint for Uthmani search mode." },
+
+  "searchHintRoot": "Type a root or stem word to find all related forms.\n\nCommon prefixes and suffixes are stripped automatically.",
+  "@searchHintRoot": { "description": "Empty-state hint for root search mode." },
+
+  "verseLocation": "Sūrah {surah}  ·  verse {verse}  ·  page {page}",
+  "@verseLocation": {
+    "description": "Location label shown on each verse result tile.",
+    "placeholders": {
+      "surah": { "type": "String", "example": "Al-Baqarah" },
+      "verse": { "type": "int",    "example": "255" },
+      "page":  { "type": "int",    "example": "42" }
+    }
+  },
+
+  "verseHeaderLocation": "Sūrah header · {surah}",
+  "@verseHeaderLocation": {
+    "description": "Location label for a surah header result tile.",
+    "placeholders": {
+      "surah": { "type": "String", "example": "Al-Baqarah" }
+    }
+  },
+
+  "surahPageRange": "Pages {first}–{last}  ·  {verses} verses",
+  "@surahPageRange": {
+    "description": "Page range and verse count shown in the surah index tile.",
+    "placeholders": {
+      "first":  { "type": "int", "example": "2" },
+      "last":   { "type": "int", "example": "49" },
+      "verses": { "type": "int", "example": "286" }
+    }
+  },
+
+  "aboutTitle": "About",
+  "@aboutTitle": { "description": "AppBar title of the About page." },
+
+  "aboutSectionAbout": "About",
+  "@aboutSectionAbout": { "description": "Section heading on the About page." },
+
+  "aboutSectionFeatures": "Features",
+  "@aboutSectionFeatures": { "description": "Features section heading on the About page." },
+
+  "aboutSectionTechnical": "Technical",
+  "@aboutSectionTechnical": { "description": "Technical section heading on the About page." },
+
+  "aboutSectionCredits": "Credits",
+  "@aboutSectionCredits": { "description": "Credits section heading on the About page." },
+
+  "aboutDescription": "The Nigerian Mushaf App presents the Nigerian Mushaf as scalable, selectable text rendered in a custom Nigerian Maghribi font — not scanned PDFs. It faithfully preserves the original colouring, rubrication, all diacritic marks, and the distinctive Maghribi spelling and orthography of the Nigerian tradition.\n\nThe Nigerian Mushaf is one of the most widely used Quran manuscripts in West Africa. Its unique Maghribi script reflects centuries of West African Quranic scholarship and transmission.",
+  "@aboutDescription": { "description": "Main description paragraph on the About page." },
+
+  "aboutCreditsBody": "Developed by Quran Quorum\n\nThe Nigerian Mushaf is a sacred manuscript with deep roots in the West African Quranic tradition. We have strived to represent it digitally with the utmost care and fidelity.\n\nAll rights to the Nigerian Mushaf script belong to their respective custodians and scholarship communities.\n\n© Quran Quorum. All rights reserved.",
+  "@aboutCreditsBody": { "description": "Credits paragraph on the About page." },
+
+  "loadingFailed": "Failed to load Mushaf data",
+  "@loadingFailed": { "description": "Error message shown if data loading fails." }
+}

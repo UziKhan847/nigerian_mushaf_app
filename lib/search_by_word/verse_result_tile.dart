@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nigerian_mushaf_app/extensions/num_extension.dart';
 import 'package:nigerian_mushaf_app/mushaf/mushaf_verses_data_models/mushaf_verse.dart';
-import 'package:nigerian_mushaf_app/providers/mushaf_scroll_ctrl_provider.dart';
+import 'package:nigerian_mushaf_app/providers/mushaf_navigate_provider.dart';
 
 class VerseResultTile extends ConsumerWidget {
   const VerseResultTile({
@@ -16,10 +16,10 @@ class VerseResultTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final navigate = ref.read(mushafNavigateProvider);
     final cs = Theme.of(context).colorScheme;
-    final pageCtrlNotifier = ref.read(mushafScrollCtrlProvider.notifier);
-
     final isHeader = verse.verseNum == 0;
+
     final locationText = isHeader
         ? 'Sūrah header · ${verse.surahNum.surahNumToEngName()}'
         : 'Sūrah ${verse.surahNum.surahNumToEngName()}  ·  '
@@ -27,15 +27,16 @@ class VerseResultTile extends ConsumerWidget {
 
     return InkWell(
       onTap: () {
-        close(context, null);
-        pageCtrlNotifier.jumpToPage(verse.page - 1);
+        // Capture context before close() pops the search route.
+        final ctx = context;
+        close(ctx, null);
+        navigate(ctx, verse.page - 1);
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Arabic text
             Text(
               verse.text,
               textAlign: TextAlign.right,
@@ -48,11 +49,11 @@ class VerseResultTile extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 6),
-            // Location chip
             Align(
               alignment: Alignment.centerLeft,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                 decoration: BoxDecoration(
                   color: cs.primaryContainer.withAlpha(120),
                   borderRadius: BorderRadius.circular(20),
