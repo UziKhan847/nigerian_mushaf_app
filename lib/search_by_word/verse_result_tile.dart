@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:nigerian_mushaf_app/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nigerian_mushaf_app/extensions/num_extension.dart';
 import 'package:nigerian_mushaf_app/mushaf/mushaf_verses_data_models/mushaf_verse.dart';
 import 'package:nigerian_mushaf_app/providers/mushaf_navigate_provider.dart';
 
 class VerseResultTile extends ConsumerWidget {
-  const VerseResultTile({
-    super.key,
-    required this.close,
-    required this.verse,
-  });
+  const VerseResultTile({super.key, required this.close, required this.verse});
 
   final void Function(BuildContext, dynamic) close;
   final MushafVerse verse;
@@ -21,9 +18,14 @@ class VerseResultTile extends ConsumerWidget {
     final isHeader = verse.verseNum == 0;
 
     final locationText = isHeader
-        ? 'Sūrah header · ${verse.surahNum.surahNumToEngName()}'
-        : 'Sūrah ${verse.surahNum.surahNumToEngName()}  ·  '
-            'verse ${verse.verseNum}  ·  page ${verse.page}';
+        ? AppLocalizations.of(
+            context,
+          ).verseHeaderLocation(verse.surahNum.surahNumToEngName()!)
+        : AppLocalizations.of(context).verseLocation(
+            verse.surahNum.surahNumToEngName()!,
+            verse.verseNum,
+            verse.page,
+          );
 
     return InkWell(
       onTap: () {
@@ -52,8 +54,10 @@ class VerseResultTile extends ConsumerWidget {
             Align(
               alignment: Alignment.centerLeft,
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 3,
+                ),
                 decoration: BoxDecoration(
                   color: cs.primaryContainer.withAlpha(120),
                   borderRadius: BorderRadius.circular(20),

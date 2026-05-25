@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nigerian_mushaf_app/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nigerian_mushaf_app/extensions/num_extension.dart';
 import 'package:nigerian_mushaf_app/pages/index_pages/index_models/surah_info.dart';
@@ -62,7 +63,11 @@ class SurahIndexTile extends ConsumerWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'Pages ${surah.firstPageNum}–${surah.lastPageNum}  ·  ${surah.lastVerseNum} verses',
+                        AppLocalizations.of(context).surahPageRange(
+                          surah.firstPageNum,
+                          surah.lastPageNum,
+                          surah.lastVerseNum,
+                        ),
                         style: TextStyle(
                           fontSize: 12,
                           color: cs.onSurface.withAlpha(150),

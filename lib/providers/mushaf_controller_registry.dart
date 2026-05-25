@@ -1,58 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// Shared mutable holder for whichever controllers are active.
-/// Registered by [MushafListViewBuilder] on initState; read by
-/// [mushafNavigateProvider] and mode-switch logic.
+/// Routes navigation to whichever scroll widget is active.
+///
+/// Two layouts exist:
+///   • PageView  — every mode except landscape-vertical-single. Items are
+///     viewport-sized; jumpToPage uses a page index (spread index when dual).
+///   • ListView  — landscape-vertical-single only. Items are TALL (90 % width,
+///     ~screen-height × image-aspect), so the page is zoomed in and the list
+///     scrolls continuously through pages. Navigation uses a pixel offset
+///     (mushafPageIndex × itemExtent).
 class MushafControllerRegistry {
-  PageController?   pageController;
+  PageController? pageController;
   ScrollController? listController;
-  double itemExtent = 0;
-  bool   isSlideMode     = false;
-  bool   isDualPage      = false;
 
-  // ── Navigation ────────────────────────────────────────────────────────────
+  bool isDualPage = false;
+  bool useList = false; // true → landscape-vertical-single (ListView)
+  double itemExtent = 0; // tall item height, used for ListView math
 
   void jumpToPage(int mushafPageIndex) {
-    if (isSlideMode) {
-      _jumpList(mushafPageIndex);
+    final i = mushafPageIndex.clamp(0, 603);
+    if (useList) {
+      final lc = listController;
+      if (lc != null && lc.hasClients && itemExtent > 0) {
+        final target = (i * itemExtent).clamp(0.0, lc.position.maxScrollExtent);
+        lc.jumpTo(target);
+      }
     } else {
-      _jumpPageView(mushafPageIndex);
+      final pc = pageController;
+      if (pc != null && pc.hasClients) {
+        pc.jumpToPage(isDualPage ? i ~/ 2 : i);
+      }
     }
   }
 
-  void _jumpPageView(int mushafPageIndex) {
-    final ctrl = pageController;
-    if (ctrl == null || !ctrl.hasClients) return;
-    // In dual-page mode each PageView item is a 2-page spread.
-    final viewIndex = isDualPage ? mushafPageIndex ~/ 2 : mushafPageIndex;
-    ctrl.jumpToPage(viewIndex);
-  }
-
-  void _jumpList(int mushafPageIndex) {
-    final ctrl = listController;
-    if (ctrl == null || !ctrl.hasClients || itemExtent <= 0) return;
-    // In dual-page mode each list item is also a 2-page spread.
-    final itemIndex = isDualPage ? mushafPageIndex ~/ 2 : mushafPageIndex;
-    ctrl.jumpTo(
-      (itemIndex * itemExtent).clamp(0.0, ctrl.position.maxScrollExtent),
-    );
-  }
-
-  // ── Current page (always returns a single-page mushaf index) ──────────────
-
   int get currentPage {
-    if (isSlideMode) {
-      final ctrl = listController;
-      if (ctrl != null && ctrl.hasClients && itemExtent > 0) {
-        final itemIndex = (ctrl.offset / itemExtent).round();
-        return isDualPage ? itemIndex * 2 : itemIndex;
+    if (useList) {
+      final lc = listController;
+      if (lc != null && lc.hasClients && itemExtent > 0) {
+        return (lc.offset / itemExtent).round().clamp(0, 603);
       }
     } else {
-      final ctrl = pageController;
-      if (ctrl != null && ctrl.hasClients) {
-        final viewIndex = ctrl.page?.round() ?? 0;
-        return isDualPage ? viewIndex * 2 : viewIndex;
+      final pc = pageController;
+      if (pc != null && pc.hasClients) {
+        final vi = pc.page?.round() ?? 0;
+        return isDualPage ? vi * 2 : vi;
       }
     }
     return 0;

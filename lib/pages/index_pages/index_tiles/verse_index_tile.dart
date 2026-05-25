@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nigerian_mushaf_app/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nigerian_mushaf_app/extensions/num_extension.dart';
 import 'package:nigerian_mushaf_app/mushaf/mushaf_verses_data_models/mushaf_verse.dart';
@@ -48,15 +49,23 @@ class VerseIndexTile extends ConsumerWidget {
                   alignment: Alignment.centerLeft,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 8, vertical: 3),
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: cs.primaryContainer.withAlpha(120),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
                       isHeader
-                          ? 'Header · ${verse.surahNum.surahNumToEngName()}'
-                          : 'Verse ${verse.verseNum}  ·  Sūrah ${verse.surahNum}  ·  p.${verse.page}',
+                          ? AppLocalizations.of(context).verseHeaderLocation(
+                              verse.surahNum.surahNumToEngName()!,
+                            )
+                          : AppLocalizations.of(context).verseLocation(
+                              verse.surahNum.surahNumToEngName()!,
+                              verse.verseNum,
+                              verse.page,
+                            ),
                       style: TextStyle(
                         fontSize: 11,
                         color: cs.onPrimaryContainer,

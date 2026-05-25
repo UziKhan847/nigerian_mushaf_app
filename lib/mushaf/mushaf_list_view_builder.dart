@@ -2,353 +2,374 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nigerian_mushaf_app/extensions/context_extensions.dart';
 import 'package:nigerian_mushaf_app/mushaf/mushaf_page.dart';
+import 'package:nigerian_mushaf_app/providers/current_page_provider.dart';
 import 'package:nigerian_mushaf_app/providers/is_zoomed_provider.dart';
+import 'package:nigerian_mushaf_app/providers/screen_dim_provider.dart';
 import 'package:nigerian_mushaf_app/providers/mushaf_controller_registry.dart';
-import 'package:nigerian_mushaf_app/providers/mushaf_scroll_ctrl_provider.dart';
 import 'package:nigerian_mushaf_app/providers/mushaf_view_settings_provider.dart';
 import 'package:nigerian_mushaf_app/custom_nav_rail/nav_rail_bar.dart';
 
 const _kTotalPages = 604;
+const _kAspect = 2480.0 / 1930.0; // height / width
+
+// Layouts:
+//   page → PageView (portrait both, landscape-horizontal, dual). Scroll mode =
+//          pageSnapping:false (smooth); Swipe = snapping.
+//   list → landscape-vertical + Scroll. Tall 90 %-width items, continuous scroll.
+//   edge → landscape-vertical + Swipe. Tall page scrolls inside itself; over-
+//          scrolling at the bottom/top animates to the next/previous page.
+enum _Layout { page, list, edge }
 
 class MushafListViewBuilder extends ConsumerStatefulWidget {
   const MushafListViewBuilder({super.key});
-
   @override
-  ConsumerState<MushafListViewBuilder> createState() =>
-      _MushafListViewBuilderState();
+  ConsumerState<MushafListViewBuilder> createState() => _State();
 }
 
-class _MushafListViewBuilderState
-    extends ConsumerState<MushafListViewBuilder> {
-  ScrollController _listCtrl = ScrollController();
-  OverlayEntry? _overlay;
+class _State extends ConsumerState<MushafListViewBuilder> {
+  PageController? _pc;
+  ScrollController? _lc;
+  double _itemExtent = 0;
+  String? _sig;
 
-  @override
-  void initState() {
-    super.initState();
-    _registerRegistry();
-    // Reset zoom state whenever the visible page changes.
-    ref.read(mushafPageCtrlProvider).addListener(_onPageChange);
-  }
+  OverlayEntry? _overlay;
+  final GlobalKey<NavRailBarState> _navKey = GlobalKey<NavRailBarState>();
 
   @override
   void dispose() {
-    _listCtrl.dispose();
+    _pc?.removeListener(_syncPage);
+    _pc?.dispose();
+    _lc?.removeListener(_syncList);
+    _lc?.dispose();
     super.dispose();
   }
 
-  void _onPageChange() {
-    if (ref.read(isZoomedInProvider)) {
-      ref.read(isZoomedInProvider.notifier).setZoomed(false);
-    }
+  // ── Source of truth sync ────────────────────────────────────────────────────
+  void _syncPage() {
+    final pc = _pc;
+    if (pc == null || !pc.hasClients) return;
+    final raw = pc.page?.round() ?? 0;
+    final dual = ref.read(mushafControllerRegistryProvider).isDualPage;
+    ref.read(currentMushafPageProvider.notifier).setPage(dual ? raw * 2 : raw);
   }
 
-  void _registerRegistry() {
+  void _syncList() {
+    final lc = _lc;
+    if (lc == null || !lc.hasClients || _itemExtent <= 0) return;
+    final page = (lc.offset / _itemExtent).round().clamp(0, _kTotalPages - 1);
+    ref.read(currentMushafPageProvider.notifier).setPage(page);
+  }
+
+  // ── Controller (re)creation keyed on layout signature ───────────────────────
+  void _ensureControllers(
+    _Layout layout,
+    bool isDual,
+    Axis axis,
+    double itemExtent,
+  ) {
+    final sig = '$layout|$isDual|$axis';
     final reg = ref.read(mushafControllerRegistryProvider);
-    reg.pageController = ref.read(mushafPageCtrlProvider);
-    reg.listController = _listCtrl;
-    final s = ref.read(mushafViewSettingsProvider);
-    reg.isSlideMode = s.isSlideMode;
-    reg.isDualPage  = s.isDualPageEnabled;
+    final useList = layout == _Layout.list;
+    _itemExtent = itemExtent;
+
+    if (sig == _sig) {
+      reg
+        ..pageController = _pc
+        ..listController = _lc
+        ..isDualPage = isDual
+        ..useList = useList
+        ..itemExtent = itemExtent;
+      return;
+    }
+
+    final page = ref.read(currentMushafPageProvider); // absolute, current
+    _pc?.removeListener(_syncPage);
+    _lc?.removeListener(_syncList);
+    final oldPc = _pc, oldLc = _lc;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      oldPc?.dispose();
+      oldLc?.dispose();
+    });
+    _pc = null;
+    _lc = null;
+
+    if (useList) {
+      _lc = ScrollController(
+        initialScrollOffset: (page * itemExtent).clamp(0.0, double.maxFinite),
+      )..addListener(_syncList);
+    } else {
+      _pc = PageController(initialPage: isDual ? page ~/ 2 : page)
+        ..addListener(_syncPage);
+    }
+
+    reg
+      ..pageController = _pc
+      ..listController = _lc
+      ..isDualPage = isDual
+      ..useList = useList
+      ..itemExtent = itemExtent;
+    _sig = sig;
   }
 
-  // ── Overlay ────────────────────────────────────────────────────────────────
-
+  // ── Animated overlay ────────────────────────────────────────────────────────
   void _toggleOverlay() {
-    if (_overlay != null) { _removeOverlay(); return; }
+    if (_overlay != null) {
+      _dismissOverlay();
+      return;
+    }
     _overlay = context.insertOverlay(
-      onTapOutside: _removeOverlay,
-      children: [NavRailBar(removeOverlay: _removeOverlay)],
+      onTapOutside: _dismissOverlay,
+      children: [NavRailBar(key: _navKey, removeOverlay: _dismissOverlay)],
     );
   }
 
-  void _removeOverlay() {
-    if (_overlay != null) {
-      context.removeOverlayEntry(_overlay);
-      _overlay = null;
+  void _dismissOverlay() {
+    final entry = _overlay;
+    if (entry == null) return;
+    void hardRemove() {
+      context.removeOverlayEntry(entry);
+      if (identical(_overlay, entry)) _overlay = null;
     }
+
+    final st = _navKey.currentState;
+    st != null ? st.animateOut(hardRemove) : hardRemove();
   }
 
-  // ── Page navigation helpers ────────────────────────────────────────────────
-
-  void _goToPrevPage() {
-    final ctrl = ref.read(mushafPageCtrlProvider);
-    if (ctrl.hasClients) {
-      ctrl.previousPage(
-        duration: const Duration(milliseconds: 350),
-        curve: Curves.easeInOut,
-      );
-    }
+  // ── Edge-nav (swipe) page stepping ──────────────────────────────────────────
+  void _animTo(int delta) {
+    final pc = _pc;
+    if (pc == null || !pc.hasClients) return;
+    delta < 0
+        ? pc.previousPage(
+            duration: const Duration(milliseconds: 350),
+            curve: Curves.easeInOut,
+          )
+        : pc.nextPage(
+            duration: const Duration(milliseconds: 350),
+            curve: Curves.easeInOut,
+          );
   }
 
-  void _goToNextPage() {
-    final ctrl = ref.read(mushafPageCtrlProvider);
-    if (ctrl.hasClients) {
-      ctrl.nextPage(
-        duration: const Duration(milliseconds: 350),
-        curve: Curves.easeInOut,
-      );
-    }
-  }
-
-  // ── Dual-page ──────────────────────────────────────────────────────────────
-
-  bool _resolveIsDual(MushafViewSettings s) => s.isDualPageEnabled;
-
-  // ── Smooth mode switch ─────────────────────────────────────────────────────
-
-  void _onSettingsChanged(MushafViewSettings next) {
-    final reg    = ref.read(mushafControllerRegistryProvider);
-    final saved  = reg.currentPage;
-    final isDual = _resolveIsDual(next);
-    final spread = isDual ? saved ~/ 2 : saved;
-    final size   = MediaQuery.of(context).size;
-    final extent = next.scrollDirection == Axis.vertical
-        ? size.height : size.width;
-
-    if (next.isSlideMode) {
-      setState(() {
-        _listCtrl.dispose();
-        _listCtrl = ScrollController(
-          initialScrollOffset: (spread * extent).clamp(0.0, double.maxFinite),
-        );
-        reg.listController = _listCtrl;
-        reg.pageController = ref.read(mushafPageCtrlProvider);
-        reg.itemExtent  = extent;
-        reg.isSlideMode = true;
-        reg.isDualPage  = isDual;
-      });
+  void _prev() => _step(-1);
+  void _next() => _step(1);
+  void _step(int delta) {
+    final pc = _pc;
+    if (pc != null && pc.hasClients) {
+      _animTo(delta);
     } else {
-      ref.read(mushafPageCtrlProvider.notifier).reset(spread);
-      setState(() {
-        reg.pageController = ref.read(mushafPageCtrlProvider);
-        reg.itemExtent  = extent;
-        reg.isSlideMode = false;
-        reg.isDualPage  = isDual;
-      });
+      final cur = ref.read(currentMushafPageProvider);
+      ref
+          .read(mushafControllerRegistryProvider)
+          .jumpToPage((cur + delta).clamp(0, _kTotalPages - 1));
     }
   }
 
-  // ── Build ──────────────────────────────────────────────────────────────────
-
+  // ── Build ───────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
-    final s          = ref.watch(mushafViewSettingsProvider);
-    final isZoomedIn = ref.watch(isZoomedInProvider);
-    final size       = MediaQuery.of(context).size;
+    final s = ref.watch(mushafViewSettingsProvider);
+    final isZoom = ref.watch(isZoomedInProvider);
+    final dim = ref.watch(screenDimProvider);
+    final size = MediaQuery.of(context).size;
     final isLandscape = size.width > size.height;
+    final isDual = s.isDualPageEnabled;
+    final axis = s.scrollDirection;
+    final scrollMode = s.isScrollMode;
 
-    ref.listen(mushafViewSettingsProvider, (prev, next) {
-      if (prev == null) return;
-      final changed =
-          prev.isSlideMode       != next.isSlideMode       ||
-          prev.scrollDirection   != next.scrollDirection   ||
-          prev.isDualPageEnabled != next.isDualPageEnabled;
-      if (changed) _onSettingsChanged(next);
-    });
+    final landscapeVert = isLandscape && axis == Axis.vertical && !isDual;
+    final _Layout layout = landscapeVert
+        ? (scrollMode ? _Layout.list : _Layout.edge)
+        : _Layout.page;
 
-    final isDual = _resolveIsDual(s);
+    final itemExtent = layout == _Layout.list
+        ? (size.width * 0.90 * _kAspect + kMushafHeaderHeight)
+        : 0.0;
 
-    // Landscape horizontal zoom: 90 % width, internal vertical scroll.
+    _ensureControllers(layout, isDual, axis, itemExtent);
+
     final landscapeHorizZoom =
-        isLandscape && !isDual && s.scrollDirection == Axis.horizontal;
-
-    // Landscape vertical swipe zoom: per-page internal scroll with edge nav.
-    // Only in PageView (swipe) mode.
-    final landscapeVertZoom =
-        isLandscape && !isDual &&
-        s.scrollDirection == Axis.vertical &&
-        !s.isSlideMode;
-
-    // Landscape vertical slide zoom: 90 % width, outer ListView scrolls.
-    final landscapeVertSlideZoom =
-        isLandscape && !isDual &&
-        s.scrollDirection == Axis.vertical &&
-        s.isSlideMode;
-
-    final extent = s.scrollDirection == Axis.vertical ? size.height : size.width;
-    final double itemExtent;
-    if (landscapeVertSlideZoom) {
-      // Each item must be tall enough for the full 90%-width image.
-      itemExtent = size.width * 0.90 * (2480.0 / 1930.0) + 28;
-    } else {
-      itemExtent = extent;
-    }
-
+        isLandscape && !isDual && axis == Axis.horizontal;
     final totalItems = isDual ? (_kTotalPages / 2).ceil() : _kTotalPages;
 
-    final reg = ref.read(mushafControllerRegistryProvider);
-    reg.pageController = ref.read(mushafPageCtrlProvider);
-    reg.listController = _listCtrl;
-    reg.itemExtent     = itemExtent;
-    reg.isSlideMode    = s.isSlideMode;
-    reg.isDualPage     = isDual;
-
-    // ── Item builder ─────────────────────────────────────────────────────────
-    Widget makeItem(BuildContext ctx, int viewIndex) {
-      Widget content;
-
-      if (isDual) {
-        content = _SpreadPage(spreadIndex: viewIndex);
-      } else if (landscapeVertZoom) {
-        // Per-page vertical scrolling with overscroll page navigation.
-        content = LandscapeVerticalPage(
-          index: viewIndex,
-          onPrevPage: _goToPrevPage,
-          onNextPage: _goToNextPage,
+    Widget view;
+    switch (layout) {
+      case _Layout.list:
+        view = ListView.builder(
+          controller: _lc,
+          itemExtent: itemExtent,
+          itemCount: totalItems,
+          physics: isZoom
+              ? const NeverScrollableScrollPhysics()
+              : const ClampingScrollPhysics(),
+          itemBuilder: (ctx, vi) => GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: _toggleOverlay,
+            child: MushafPage(index: vi, ninetyPercentWidth: true),
+          ),
         );
-      } else {
-        content = MushafPage(
-          index: viewIndex,
-          landscapeZoom: landscapeHorizZoom,
-          ninetyPercentWidth: landscapeVertSlideZoom,
-        );
-      }
+        break;
 
-      // Tap opens nav rail (not for LandscapeVerticalPage which handles its own scroll).
-      if (!landscapeVertZoom) {
-        content = GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: _toggleOverlay,
-          child: content,
+      case _Layout.edge:
+        view = PageView.builder(
+          controller: _pc,
+          scrollDirection: Axis.vertical,
+          physics:
+              const NeverScrollableScrollPhysics(), // inner scroll drives nav
+          itemCount: totalItems,
+          itemBuilder: (ctx, vi) => GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: _toggleOverlay,
+            child: LandscapeVerticalPage(
+              index: vi,
+              onPrevPage: () => _animTo(-1),
+              onNextPage: () => _animTo(1),
+            ),
+          ),
         );
-      } else {
-        content = GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: _toggleOverlay,
-          child: content,
-        );
-      }
+        break;
 
-      return content;
+      case _Layout.page:
+        view = PageView.builder(
+          controller: _pc,
+          scrollDirection: axis,
+          pageSnapping: !scrollMode || isZoom,
+          physics: isZoom
+              ? const NeverScrollableScrollPhysics()
+              : (scrollMode
+                    ? const ClampingScrollPhysics()
+                    : const PageScrollPhysics()),
+          itemCount: totalItems,
+          itemBuilder: (ctx, vi) => GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: _toggleOverlay,
+            child: isDual
+                ? _Spread(vi)
+                : MushafPage(index: vi, landscapeZoom: landscapeHorizZoom),
+          ),
+        );
+        if (axis == Axis.horizontal) {
+          view = Directionality(textDirection: TextDirection.rtl, child: view);
+        }
+        break;
     }
-
-    // ── Scroll physics ────────────────────────────────────────────────────────
-    // Disable outer scroll when:
-    //   1. User is pinch-zoomed in (inner pan handles movement), OR
-    //   2. Landscape vertical zoom mode (inner SingleChildScrollView handles scroll).
-    final disableOuterScroll = isZoomedIn || landscapeVertZoom;
-
-    Widget scrollWidget;
-
-    if (s.isSlideMode) {
-      scrollWidget = ListView.builder(
-        controller:      _listCtrl,
-        scrollDirection: s.scrollDirection,
-        itemCount:       totalItems,
-        itemExtent:      itemExtent,
-        physics:         disableOuterScroll
-            ? const NeverScrollableScrollPhysics()
-            : null,
-        itemBuilder:     makeItem,
-      );
-    } else {
-      final pageCtrl = ref.watch(mushafPageCtrlProvider);
-      scrollWidget = PageView.builder(
-        controller:      pageCtrl,
-        scrollDirection: s.scrollDirection,
-        physics:         disableOuterScroll
-            ? const NeverScrollableScrollPhysics()
-            : const PageScrollPhysics(),
-        itemCount:       totalItems,
-        itemBuilder:     makeItem,
-      );
-    }
-
-    if (s.scrollDirection == Axis.horizontal) {
-      scrollWidget = Directionality(
-        textDirection: TextDirection.rtl,
-        child: scrollWidget,
-      );
-    }
-
-    // ── Floating zoom navigation ──────────────────────────────────────────────
-    // When pinch-zoomed in, the swipe gesture is consumed by InteractiveViewer.
-    // Show explicit prev/next buttons so the user can still navigate pages.
-    if (!isZoomedIn) return scrollWidget;
 
     return Stack(
       children: [
-        scrollWidget,
-        Positioned(
-          right: 16,
-          bottom: 40,
-          child: _ZoomNavButtons(
-            onPrev: _goToPrevPage,
-            onNext: _goToNextPage,
+        view,
+        // In-app night-reading dim: a black overlay over the page only.
+        // Placed above the page but below the zoom controls; IgnorePointer
+        // lets taps reach the page (toggle nav rail).
+        if (dim > 0.01)
+          Positioned.fill(
+            child: IgnorePointer(
+              child: ColoredBox(
+                color: Colors.black.withAlpha((dim * 255).round()),
+              ),
+            ),
           ),
-        ),
+        if (isZoom)
+          if (axis == Axis.vertical)
+            Positioned(
+              right: 16,
+              bottom: 40,
+              child: _ZoomNav(
+                axis: Axis.vertical,
+                onPrev: _prev,
+                onNext: _next,
+                onExit: () =>
+                    ref.read(isZoomedInProvider.notifier).setZoomed(false),
+              ),
+            )
+          else
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 24,
+              child: Center(
+                child: _ZoomNav(
+                  axis: Axis.horizontal,
+                  onPrev: _prev,
+                  onNext: _next,
+                  onExit: () =>
+                      ref.read(isZoomedInProvider.notifier).setZoomed(false),
+                ),
+              ),
+            ),
       ],
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Dual-page spread
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _SpreadPage extends StatelessWidget {
-  const _SpreadPage({required this.spreadIndex});
-  final int spreadIndex;
-
+// ── Dual-page spread ──────────────────────────────────────────────────────────
+class _Spread extends StatelessWidget {
+  const _Spread(this.si);
+  final int si;
   @override
   Widget build(BuildContext context) {
-    final rightIndex = spreadIndex * 2;
-    final leftIndex  = spreadIndex * 2 + 1;
+    final r = si * 2, l = si * 2 + 1;
     return Row(
       textDirection: TextDirection.ltr,
       children: [
         Expanded(
-          child: leftIndex < _kTotalPages
-              ? MushafPage(index: leftIndex)
+          child: l < _kTotalPages
+              ? MushafPage(index: l)
               : const SizedBox.shrink(),
         ),
-        Expanded(child: MushafPage(index: rightIndex)),
+        Expanded(child: MushafPage(index: r)),
       ],
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Floating prev/next buttons shown when pinch-zoomed in
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _ZoomNavButtons extends StatelessWidget {
-  const _ZoomNavButtons({required this.onPrev, required this.onNext});
-  final VoidCallback onPrev;
-  final VoidCallback onNext;
+// ── Zoom floating nav ─────────────────────────────────────────────────────────
+class _ZoomNav extends StatelessWidget {
+  const _ZoomNav({
+    required this.axis,
+    required this.onPrev,
+    required this.onNext,
+    required this.onExit,
+  });
+  final Axis axis;
+  final VoidCallback onPrev, onNext, onExit;
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final isV = axis == Axis.vertical;
+    final prevIcon = isV
+        ? Icons.arrow_upward_rounded
+        : Icons.arrow_forward_rounded;
+    final nextIcon = isV
+        ? Icons.arrow_downward_rounded
+        : Icons.arrow_back_rounded;
+
+    Widget div() => isV
+        ? Divider(height: 1, color: cs.outlineVariant)
+        : VerticalDivider(width: 1, color: cs.outlineVariant);
+
+    final children = <Widget>[
+      IconButton(icon: Icon(nextIcon), onPressed: onNext),
+      div(),
+      IconButton(icon: const Icon(Icons.zoom_out_rounded), onPressed: onExit),
+      div(),
+      IconButton(icon: Icon(prevIcon), onPressed: onPrev),
+    ];
+
     return Container(
       decoration: BoxDecoration(
-        color: cs.surface.withAlpha(220),
+        color: cs.surface.withAlpha(230),
         borderRadius: BorderRadius.circular(28),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(60),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
+          BoxShadow(color: Colors.black.withAlpha(60), blurRadius: 8),
         ],
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_upward_rounded),
-            tooltip: 'Previous page',
-            onPressed: onPrev,
-          ),
-          Divider(height: 1, thickness: 0.5, color: cs.outlineVariant),
-          IconButton(
-            icon: const Icon(Icons.arrow_downward_rounded),
-            tooltip: 'Next page',
-            onPressed: onNext,
-          ),
-        ],
-      ),
+      child: isV
+          ? IntrinsicWidth(
+              child: Column(mainAxisSize: MainAxisSize.min, children: children),
+            )
+          : IntrinsicHeight(
+              child: Row(mainAxisSize: MainAxisSize.min, children: children),
+            ),
     );
   }
 }

@@ -1,173 +1,423 @@
 {
   "@@locale": "en",
-
   "appTitle": "Nigerian Mushaf",
-  "@appTitle": { "description": "The application title shown in the OS and splash screen." },
-
+  "@appTitle": {
+    "description": "The application title shown in the OS and splash screen."
+  },
   "appSubtitle": "المصحف النيجيري",
-  "@appSubtitle": { "description": "Arabic subtitle shown on the splash screen." },
-
+  "@appSubtitle": {
+    "description": "Arabic subtitle shown on the splash screen."
+  },
   "appBy": "by Quran Quorum",
-  "@appBy": { "description": "Attribution string shown beneath the app title." },
-
+  "@appBy": {
+    "description": "Attribution string shown beneath the app title."
+  },
   "navSearch": "Search",
-  "@navSearch": { "description": "Nav rail label for the search button." },
-
+  "@navSearch": {
+    "description": "Nav rail label for the search button."
+  },
   "navPageIndex": "Pages",
-  "@navPageIndex": { "description": "Nav rail label for the page index." },
-
+  "@navPageIndex": {
+    "description": "Nav rail label for the page index."
+  },
   "navSurahIndex": "Sūrahs",
-  "@navSurahIndex": { "description": "Nav rail label for the surah index." },
-
+  "@navSurahIndex": {
+    "description": "Nav rail label for the surah index."
+  },
   "navVerseIndex": "Verses",
-  "@navVerseIndex": { "description": "Nav rail label for the verse index." },
-
+  "@navVerseIndex": {
+    "description": "Nav rail label for the verse index."
+  },
   "navTheme": "Theme",
-  "@navTheme": { "description": "Nav rail label for the theme picker." },
-
+  "@navTheme": {
+    "description": "Nav rail label for the theme picker."
+  },
   "navPageColour": "Page\nColour",
-  "@navPageColour": { "description": "Nav rail label for the custom background colour picker." },
-
+  "@navPageColour": {
+    "description": "Nav rail label for the custom background colour picker."
+  },
   "navVertical": "Vertical",
-  "@navVertical": { "description": "Nav rail label shown when scroll direction is vertical." },
-
+  "@navVertical": {
+    "description": "Nav rail label shown when scroll direction is vertical."
+  },
   "navHorizontal": "Horizontal",
-  "@navHorizontal": { "description": "Nav rail label shown when scroll direction is horizontal." },
-
-  "navSlideMode": "Slide\nMode",
-  "@navSlideMode": { "description": "Nav rail label shown when page mode is slide (smooth scroll)." },
-
+  "@navHorizontal": {
+    "description": "Nav rail label shown when scroll direction is horizontal."
+  },
+  "navScrollMode": "Scroll\nMode",
+  "@navScrollMode": {
+    "description": "Nav rail label shown when page mode is continuous scroll."
+  },
   "navSwipeMode": "Swipe\nMode",
-  "@navSwipeMode": { "description": "Nav rail label shown when page mode is swipe (snap to page)." },
-
+  "@navSwipeMode": {
+    "description": "Nav rail label shown when page mode is swipe (snap to page)."
+  },
   "navDualPage": "Dual\nPage",
-  "@navDualPage": { "description": "Nav rail label for the dual-page spread toggle." },
-
+  "@navDualPage": {
+    "description": "Nav rail label for the dual-page spread toggle."
+  },
   "navAbout": "About",
-  "@navAbout": { "description": "Nav rail label for the About page." },
-
+  "@navAbout": {
+    "description": "Nav rail label for the About page."
+  },
+  "navZoomPage": "Zoom\nPage",
+  "@navZoomPage": {
+    "description": "Nav rail label to enter zoom mode."
+  },
+  "navExitZoom": "Exit\nZoom",
+  "@navExitZoom": {
+    "description": "Nav rail label to leave zoom mode."
+  },
+  "navBookmarks": "Book\nmarks",
+  "@navBookmarks": {
+    "description": "Nav rail label for the bookmarks sheet."
+  },
+  "navBrightness": "Bright\nness",
+  "@navBrightness": {
+    "description": "Nav rail label for the in-app brightness/dim sheet."
+  },
+  "navJuzIndex": "Juz",
+  "@navJuzIndex": {
+    "description": "Nav rail / index label for the Juz list."
+  },
+  "navLanguage": "Lang\nuage",
+  "@navLanguage": {
+    "description": "Nav rail label for the language picker."
+  },
+  "languagePickerTitle": "Language",
+  "@languagePickerTitle": {
+    "description": "Title of the language picker sheet."
+  },
+  "surahIndexTitle": "Surahs' Index",
+  "@surahIndexTitle": {
+    "description": "AppBar title of the surah index page."
+  },
+  "pageIndexTitle": "Pages' Index",
+  "@pageIndexTitle": {
+    "description": "AppBar title of the page index page."
+  },
+  "verseIndexTitle": "Verses' Index",
+  "@verseIndexTitle": {
+    "description": "AppBar title of the verse index page."
+  },
+  "headerSurah": "سُورَة {name}",
+  "@headerSurah": {
+    "description": "Page-header label for the current surah (Arabic).",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "البَقَرَة"
+      }
+    }
+  },
+  "headerJuz": "جُزْء {num}",
+  "@headerJuz": {
+    "description": "Page-header label for the current juz (Arabic-Indic numeral expected).",
+    "placeholders": {
+      "num": {
+        "type": "String",
+        "example": "٣٠"
+      }
+    }
+  },
+  "juzListTitle": "Juzʾ {num}",
+  "@juzListTitle": {
+    "description": "Title shown in the Juz index list.",
+    "placeholders": {
+      "num": {
+        "type": "int",
+        "example": "30"
+      }
+    }
+  },
+  "juzStartsAt": "Starts at {location}",
+  "@juzStartsAt": {
+    "description": "Subtitle in the Juz index list giving the starting ayah.",
+    "placeholders": {
+      "location": {
+        "type": "String",
+        "example": "Al-Baqarah 2:142"
+      }
+    }
+  },
+  "bookmarksTitle": "Bookmarks",
+  "@bookmarksTitle": {
+    "description": "Title of the bookmarks sheet."
+  },
+  "bookmarkAdd": "Bookmark this page ({page})",
+  "@bookmarkAdd": {
+    "description": "Button to bookmark the current page.",
+    "placeholders": {
+      "page": {
+        "type": "int",
+        "example": "42"
+      }
+    }
+  },
+  "bookmarkRemove": "Remove this page ({page})",
+  "@bookmarkRemove": {
+    "description": "Button to remove the current page's bookmark.",
+    "placeholders": {
+      "page": {
+        "type": "int",
+        "example": "42"
+      }
+    }
+  },
+  "bookmarksEmpty": "No bookmarks yet",
+  "@bookmarksEmpty": {
+    "description": "Empty-state message in the bookmarks sheet."
+  },
+  "bookmarkPage": "Page {page}",
+  "@bookmarkPage": {
+    "description": "List-tile label for a saved bookmark.",
+    "placeholders": {
+      "page": {
+        "type": "int",
+        "example": "42"
+      }
+    }
+  },
+  "brightnessTitle": "Brightness",
+  "@brightnessTitle": {
+    "description": "Title of the brightness/dim sheet."
+  },
+  "brightnessHint": "Dims the page for comfortable night reading.",
+  "@brightnessHint": {
+    "description": "Helper text in the brightness sheet."
+  },
   "themePickerTitle": "Choose Theme",
-  "@themePickerTitle": { "description": "Title of the theme picker bottom sheet." },
-
+  "@themePickerTitle": {
+    "description": "Title of the theme picker bottom sheet."
+  },
   "themeLight": "Light",
-  "@themeLight": { "description": "Label for the Light theme option." },
-
+  "@themeLight": {
+    "description": "Label for the Light theme option."
+  },
   "themeDark": "Dark",
-  "@themeDark": { "description": "Label for the Dark theme option." },
-
-  "themeMonochrome": "Monochrome",
-  "@themeMonochrome": { "description": "Label for the Monochrome theme option." },
-
+  "@themeDark": {
+    "description": "Label for the Dark theme option."
+  },
+  "themeWhite": "White",
+  "@themeWhite": {
+    "description": "Label for the White theme option."
+  },
+  "themeYellowCream": "Yellow Cream",
+  "@themeYellowCream": {
+    "description": "Label for the Yellow Cream theme option (warm paper tone)."
+  },
   "themeOled": "OLED Black",
-  "@themeOled": { "description": "Label for the OLED Black theme option." },
-
+  "@themeOled": {
+    "description": "Label for the OLED Black theme option."
+  },
   "themeCustom": "Custom",
-  "@themeCustom": { "description": "Label for the Custom theme option (user-defined background colour)." },
-
+  "@themeCustom": {
+    "description": "Label for the Custom theme option (user-defined background colour)."
+  },
   "colourPickerTitle": "Page Background Colour",
-  "@colourPickerTitle": { "description": "Title of the custom page background colour picker sheet." },
-
+  "@colourPickerTitle": {
+    "description": "Title of the custom page background colour picker sheet."
+  },
   "colourPickerHue": "Hue",
-  "@colourPickerHue": { "description": "Label for the hue slider in the colour picker." },
-
+  "@colourPickerHue": {
+    "description": "Label for the hue slider in the colour picker."
+  },
   "colourPickerSaturation": "Saturation",
-  "@colourPickerSaturation": { "description": "Label for the saturation slider in the colour picker." },
-
+  "@colourPickerSaturation": {
+    "description": "Label for the saturation slider in the colour picker."
+  },
   "colourPickerLightness": "Lightness",
-  "@colourPickerLightness": { "description": "Label for the lightness slider in the colour picker." },
-
+  "@colourPickerLightness": {
+    "description": "Label for the lightness slider in the colour picker."
+  },
   "colourPickerPresets": "Presets",
-  "@colourPickerPresets": { "description": "Section label for the preset colours row." },
-
+  "@colourPickerPresets": {
+    "description": "Section label for the preset colours row."
+  },
   "searchHint": "Search Mushaf…",
-  "@searchHint": { "description": "Placeholder text shown in the search bar." },
-
+  "@searchHint": {
+    "description": "Placeholder text shown in the search bar."
+  },
   "searchModeQiyas": "Qiyāsī",
-  "@searchModeQiyas": { "description": "Label for the Qiyas (standard Arabic spelling) search mode." },
-
+  "@searchModeQiyas": {
+    "description": "Label for the Qiyas (standard Arabic spelling) search mode."
+  },
   "searchModeUthmani": "Uthmānī",
-  "@searchModeUthmani": { "description": "Label for the Uthmani script search mode." },
-
+  "@searchModeUthmani": {
+    "description": "Label for the Uthmani script search mode."
+  },
   "searchModeRoot": "Root",
-  "@searchModeRoot": { "description": "Label for the Arabic root-based search mode." },
-
+  "@searchModeRoot": {
+    "description": "Label for the Arabic root-based search mode."
+  },
   "searchResultCount": "{count, plural, =0{No results} =1{1 result} other{{count} results}}",
   "@searchResultCount": {
     "description": "Number of search results found.",
     "placeholders": {
-      "count": { "type": "int", "example": "42" }
+      "count": {
+        "type": "int",
+        "example": "42"
+      }
     }
   },
-
   "searchNoResults": "No matches found",
-  "@searchNoResults": { "description": "Message shown when the search returns no results." },
-
+  "@searchNoResults": {
+    "description": "Message shown when the search returns no results."
+  },
   "searchLoadMore": "Load more  ({remaining} remaining)",
   "@searchLoadMore": {
     "description": "Button label to load more paginated search results.",
     "placeholders": {
-      "remaining": { "type": "int", "example": "12" }
+      "remaining": {
+        "type": "int",
+        "example": "12"
+      }
     }
   },
-
   "searchHintQiyas": "Type Arabic text to search by standard spelling.\n\nTashkīl (diacritics) is ignored except for small madd letters.",
-  "@searchHintQiyas": { "description": "Empty-state hint for Qiyas search mode." },
-
+  "@searchHintQiyas": {
+    "description": "Empty-state hint for Qiyas search mode."
+  },
   "searchHintUthmani": "Type Arabic text to search by Uthmānī script.\n\nAll diacritics are stripped before matching.",
-  "@searchHintUthmani": { "description": "Empty-state hint for Uthmani search mode." },
-
+  "@searchHintUthmani": {
+    "description": "Empty-state hint for Uthmani search mode."
+  },
   "searchHintRoot": "Type a root or stem word to find all related forms.\n\nCommon prefixes and suffixes are stripped automatically.",
-  "@searchHintRoot": { "description": "Empty-state hint for root search mode." },
-
+  "@searchHintRoot": {
+    "description": "Empty-state hint for root search mode."
+  },
   "verseLocation": "Sūrah {surah}  ·  verse {verse}  ·  page {page}",
   "@verseLocation": {
     "description": "Location label shown on each verse result tile.",
     "placeholders": {
-      "surah": { "type": "String", "example": "Al-Baqarah" },
-      "verse": { "type": "int",    "example": "255" },
-      "page":  { "type": "int",    "example": "42" }
+      "surah": {
+        "type": "String",
+        "example": "Al-Baqarah"
+      },
+      "verse": {
+        "type": "int",
+        "example": "255"
+      },
+      "page": {
+        "type": "int",
+        "example": "42"
+      }
     }
   },
-
   "verseHeaderLocation": "Sūrah header · {surah}",
   "@verseHeaderLocation": {
     "description": "Location label for a surah header result tile.",
     "placeholders": {
-      "surah": { "type": "String", "example": "Al-Baqarah" }
+      "surah": {
+        "type": "String",
+        "example": "Al-Baqarah"
+      }
     }
   },
-
   "surahPageRange": "Pages {first}–{last}  ·  {verses} verses",
   "@surahPageRange": {
     "description": "Page range and verse count shown in the surah index tile.",
     "placeholders": {
-      "first":  { "type": "int", "example": "2" },
-      "last":   { "type": "int", "example": "49" },
-      "verses": { "type": "int", "example": "286" }
+      "first": {
+        "type": "int",
+        "example": "2"
+      },
+      "last": {
+        "type": "int",
+        "example": "49"
+      },
+      "verses": {
+        "type": "int",
+        "example": "286"
+      }
     }
   },
-
   "aboutTitle": "About",
-  "@aboutTitle": { "description": "AppBar title of the About page." },
-
+  "@aboutTitle": {
+    "description": "AppBar title of the About page."
+  },
   "aboutSectionAbout": "About",
-  "@aboutSectionAbout": { "description": "Section heading on the About page." },
-
+  "@aboutSectionAbout": {
+    "description": "Section heading on the About page."
+  },
   "aboutSectionFeatures": "Features",
-  "@aboutSectionFeatures": { "description": "Features section heading on the About page." },
-
+  "@aboutSectionFeatures": {
+    "description": "Features section heading on the About page."
+  },
   "aboutSectionTechnical": "Technical",
-  "@aboutSectionTechnical": { "description": "Technical section heading on the About page." },
-
+  "@aboutSectionTechnical": {
+    "description": "Technical section heading on the About page."
+  },
   "aboutSectionCredits": "Credits",
-  "@aboutSectionCredits": { "description": "Credits section heading on the About page." },
-
-  "aboutDescription": "The Nigerian Mushaf App presents the Nigerian Mushaf as scalable, selectable text rendered in a custom Nigerian Maghribi font — not scanned PDFs. It faithfully preserves the original colouring, rubrication, all diacritic marks, and the distinctive Maghribi spelling and orthography of the Nigerian tradition.\n\nThe Nigerian Mushaf is one of the most widely used Quran manuscripts in West Africa. Its unique Maghribi script reflects centuries of West African Quranic scholarship and transmission.",
-  "@aboutDescription": { "description": "Main description paragraph on the About page." },
-
+  "@aboutSectionCredits": {
+    "description": "Credits section heading on the About page."
+  },
+  "aboutDescription": "The Nigerian Mushaf App presents all 604 pages of the Nigerian Mushaf as high-resolution page images, faithfully preserving the original colouring, rubrication, diacritics, and the distinctive Maghribi spelling and orthography of the Nigerian tradition. Each page is rendered as two layers — ink and coloured decoration — so themes such as Dark and OLED can recolour the text while leaving the decorative borders untouched.\n\nThe Nigerian Mushaf is one of the most widely used Quran manuscripts in West Africa. Its unique Maghribi script reflects centuries of West African Quranic scholarship and transmission.",
+  "@aboutDescription": {
+    "description": "Main description paragraph on the About page."
+  },
   "aboutCreditsBody": "Developed by Quran Quorum\n\nThe Nigerian Mushaf is a sacred manuscript with deep roots in the West African Quranic tradition. We have strived to represent it digitally with the utmost care and fidelity.\n\nAll rights to the Nigerian Mushaf script belong to their respective custodians and scholarship communities.\n\n© Quran Quorum. All rights reserved.",
-  "@aboutCreditsBody": { "description": "Credits paragraph on the About page." },
-
+  "@aboutCreditsBody": {
+    "description": "Credits paragraph on the About page."
+  },
   "loadingFailed": "Failed to load Mushaf data",
-  "@loadingFailed": { "description": "Error message shown if data loading fails." }
+  "@loadingFailed": {
+    "description": "Error message shown if data loading fails."
+  },
+  "featImages": "Every page shown as a high-resolution image with separate ink and decoration layers",
+  "@featImages": {
+    "description": "About page: featImages."
+  },
+  "featThemes": "Themes: Light, White, Yellow Cream, Dark, OLED Black and Custom",
+  "@featThemes": {
+    "description": "About page: featThemes."
+  },
+  "featModes": "Vertical or horizontal reading with smooth scroll or page-snap swipe",
+  "@featModes": {
+    "description": "About page: featModes."
+  },
+  "featDualZoom": "Dual-page spread and a pinch-to-zoom reading mode",
+  "@featDualZoom": {
+    "description": "About page: featDualZoom."
+  },
+  "featSearch": "Full-text search in Qiyāsī, Uthmānī and root modes",
+  "@featSearch": {
+    "description": "About page: featSearch."
+  },
+  "featIndexes": "Sūrah, page and verse indexes for quick navigation",
+  "@featIndexes": {
+    "description": "About page: featIndexes."
+  },
+  "featBookmarks": "Bookmarks and automatic resume on your last-read page",
+  "@featBookmarks": {
+    "description": "About page: featBookmarks."
+  },
+  "featBrightness": "In-app brightness dimming for night reading",
+  "@featBrightness": {
+    "description": "About page: featBrightness."
+  },
+  "techFramework": "Framework",
+  "@techFramework": {
+    "description": "About page: techFramework."
+  },
+  "techState": "State",
+  "@techState": {
+    "description": "About page: techState."
+  },
+  "techRendering": "Rendering",
+  "@techRendering": {
+    "description": "About page: techRendering."
+  },
+  "techImagesLabel": "Images",
+  "@techImagesLabel": {
+    "description": "About page: techImagesLabel."
+  },
+  "techPagesLabel": "Pages",
+  "@techPagesLabel": {
+    "description": "About page: techPagesLabel."
+  },
+  "aboutCreditsShort": "© Quran Quorum\nAll rights reserved.",
+  "@aboutCreditsShort": {
+    "description": "About page: aboutCreditsShort."
+  }
 }

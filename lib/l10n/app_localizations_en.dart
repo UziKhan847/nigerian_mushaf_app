@@ -42,7 +42,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navHorizontal => 'Horizontal';
 
   @override
-  String get navSlideMode => 'Slide\nMode';
+  String get navScrollMode => 'Scroll\nMode';
 
   @override
   String get navSwipeMode => 'Swipe\nMode';
@@ -54,6 +54,83 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navAbout => 'About';
 
   @override
+  String get navZoomPage => 'Zoom\nPage';
+
+  @override
+  String get navExitZoom => 'Exit\nZoom';
+
+  @override
+  String get navBookmarks => 'Book\nmarks';
+
+  @override
+  String get navBrightness => 'Bright\nness';
+
+  @override
+  String get navJuzIndex => 'Juz';
+
+  @override
+  String get navLanguage => 'Lang\nuage';
+
+  @override
+  String get languagePickerTitle => 'Language';
+
+  @override
+  String get surahIndexTitle => 'Surahs\' Index';
+
+  @override
+  String get pageIndexTitle => 'Pages\' Index';
+
+  @override
+  String get verseIndexTitle => 'Verses\' Index';
+
+  @override
+  String headerSurah(String name) {
+    return 'سُورَة $name';
+  }
+
+  @override
+  String headerJuz(String num) {
+    return 'جُزْء $num';
+  }
+
+  @override
+  String juzListTitle(int num) {
+    return 'Juzʾ $num';
+  }
+
+  @override
+  String juzStartsAt(String location) {
+    return 'Starts at $location';
+  }
+
+  @override
+  String get bookmarksTitle => 'Bookmarks';
+
+  @override
+  String bookmarkAdd(int page) {
+    return 'Bookmark this page ($page)';
+  }
+
+  @override
+  String bookmarkRemove(int page) {
+    return 'Remove this page ($page)';
+  }
+
+  @override
+  String get bookmarksEmpty => 'No bookmarks yet';
+
+  @override
+  String bookmarkPage(int page) {
+    return 'Page $page';
+  }
+
+  @override
+  String get brightnessTitle => 'Brightness';
+
+  @override
+  String get brightnessHint => 'Dims the page for comfortable night reading.';
+
+  @override
   String get themePickerTitle => 'Choose Theme';
 
   @override
@@ -63,7 +140,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get themeDark => 'Dark';
 
   @override
-  String get themeMonochrome => 'Monochrome';
+  String get themeWhite => 'White';
+
+  @override
+  String get themeYellowCream => 'Yellow Cream';
 
   @override
   String get themeOled => 'OLED Black';
@@ -162,7 +242,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aboutDescription =>
-      'The Nigerian Mushaf App presents the Nigerian Mushaf as scalable, selectable text rendered in a custom Nigerian Maghribi font — not scanned PDFs. It faithfully preserves the original colouring, rubrication, all diacritic marks, and the distinctive Maghribi spelling and orthography of the Nigerian tradition.\n\nThe Nigerian Mushaf is one of the most widely used Quran manuscripts in West Africa. Its unique Maghribi script reflects centuries of West African Quranic scholarship and transmission.';
+      'The Nigerian Mushaf App presents all 604 pages of the Nigerian Mushaf as high-resolution page images, faithfully preserving the original colouring, rubrication, diacritics, and the distinctive Maghribi spelling and orthography of the Nigerian tradition. Each page is rendered as two layers — ink and coloured decoration — so themes such as Dark and OLED can recolour the text while leaving the decorative borders untouched.\n\nThe Nigerian Mushaf is one of the most widely used Quran manuscripts in West Africa. Its unique Maghribi script reflects centuries of West African Quranic scholarship and transmission.';
 
   @override
   String get aboutCreditsBody =>
@@ -170,4 +250,52 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loadingFailed => 'Failed to load Mushaf data';
+
+  @override
+  String get featImages =>
+      'Every page shown as a high-resolution image with separate ink and decoration layers';
+
+  @override
+  String get featThemes =>
+      'Themes: Light, White, Yellow Cream, Dark, OLED Black and Custom';
+
+  @override
+  String get featModes =>
+      'Vertical or horizontal reading with smooth scroll or page-snap swipe';
+
+  @override
+  String get featDualZoom =>
+      'Dual-page spread and a pinch-to-zoom reading mode';
+
+  @override
+  String get featSearch => 'Full-text search in Qiyāsī, Uthmānī and root modes';
+
+  @override
+  String get featIndexes =>
+      'Sūrah, page and verse indexes for quick navigation';
+
+  @override
+  String get featBookmarks =>
+      'Bookmarks and automatic resume on your last-read page';
+
+  @override
+  String get featBrightness => 'In-app brightness dimming for night reading';
+
+  @override
+  String get techFramework => 'Framework';
+
+  @override
+  String get techState => 'State';
+
+  @override
+  String get techRendering => 'Rendering';
+
+  @override
+  String get techImagesLabel => 'Images';
+
+  @override
+  String get techPagesLabel => 'Pages';
+
+  @override
+  String get aboutCreditsShort => '© Quran Quorum\nAll rights reserved.';
 }

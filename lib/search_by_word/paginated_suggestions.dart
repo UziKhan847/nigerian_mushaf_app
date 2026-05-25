@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'package:nigerian_mushaf_app/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:nigerian_mushaf_app/search_by_word/verse_result_tile.dart';
 import 'package:nigerian_mushaf_app/mushaf/mushaf_verses_data_models/mushaf_verse.dart';
@@ -71,7 +72,7 @@ class _PaginatedSuggestionsState extends State<PaginatedSuggestions> {
             ),
             const SizedBox(height: 12),
             Text(
-              'No matches found',
+              AppLocalizations.of(context).searchNoResults,
               style: TextStyle(
                 fontSize: 16,
                 color: Theme.of(context).colorScheme.onSurface.withAlpha(140),
@@ -93,7 +94,7 @@ class _PaginatedSuggestionsState extends State<PaginatedSuggestions> {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: Text(
-              '$count result${count == 1 ? '' : 's'}',
+              AppLocalizations.of(context).searchResultCount(count),
               style: TextStyle(
                 fontSize: 13,
                 color: Theme.of(context).colorScheme.onSurface.withAlpha(160),
@@ -104,27 +105,24 @@ class _PaginatedSuggestionsState extends State<PaginatedSuggestions> {
         ),
 
         SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              if (index.isOdd) {
-                return Divider(
-                  height: 1,
-                  thickness: 0.5,
-                  indent: 20,
-                  endIndent: 20,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.outlineVariant.withAlpha(120),
-                );
-              }
-              final verseIndex = index ~/ 2;
-              return VerseResultTile(
-                close: widget.close,
-                verse: widget.suggestions[verseIndex],
+          delegate: SliverChildBuilderDelegate((context, index) {
+            if (index.isOdd) {
+              return Divider(
+                height: 1,
+                thickness: 0.5,
+                indent: 20,
+                endIndent: 20,
+                color: Theme.of(
+                  context,
+                ).colorScheme.outlineVariant.withAlpha(120),
               );
-            },
-            childCount: visible * 2 - 1,
-          ),
+            }
+            final verseIndex = index ~/ 2;
+            return VerseResultTile(
+              close: widget.close,
+              verse: widget.suggestions[verseIndex],
+            );
+          }, childCount: visible * 2 - 1),
         ),
 
         // Load-more footer
@@ -137,7 +135,9 @@ class _PaginatedSuggestionsState extends State<PaginatedSuggestions> {
                   onPressed: _loadMore,
                   icon: const Icon(Icons.expand_more),
                   label: Text(
-                    'Load more  (${count - visible} remaining)',
+                    AppLocalizations.of(
+                      context,
+                    ).searchLoadMore(count - visible),
                   ),
                 ),
               ),

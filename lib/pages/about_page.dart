@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nigerian_mushaf_app/l10n/app_localizations.dart';
 
 class AboutPage extends StatelessWidget {
   const AboutPage({super.key});
@@ -6,12 +7,11 @@ class AboutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-
     return Scaffold(
       backgroundColor: cs.surface,
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('About'),
+        title: Text(AppLocalizations.of(context).aboutTitle),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
@@ -31,14 +31,9 @@ class AboutPage extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Portrait layout: scrollable single column
-// ─────────────────────────────────────────────────────────────────────────────
-
 class _PortraitLayout extends StatelessWidget {
   const _PortraitLayout({required this.cs});
   final ColorScheme cs;
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -61,20 +56,14 @@ class _PortraitLayout extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Landscape layout: hero on left, scrollable content on right
-// ─────────────────────────────────────────────────────────────────────────────
-
 class _LandscapeLayout extends StatelessWidget {
   const _LandscapeLayout({required this.cs});
   final ColorScheme cs;
-
   @override
   Widget build(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Fixed left panel: hero + credits
         SizedBox(
           width: 280,
           child: Column(
@@ -85,7 +74,6 @@ class _LandscapeLayout extends StatelessWidget {
           ),
         ),
         const VerticalDivider(width: 1),
-        // Scrollable right panel
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
@@ -106,17 +94,13 @@ class _LandscapeLayout extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Cards
-// ─────────────────────────────────────────────────────────────────────────────
-
 class _HeroCard extends StatelessWidget {
   const _HeroCard({required this.cs, this.compact = true});
   final ColorScheme cs;
   final bool compact;
-
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Card(
       color: cs.primaryContainer,
       elevation: 0,
@@ -128,23 +112,28 @@ class _HeroCard extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.menu_book_rounded, size: compact ? 56 : 72,
-                color: cs.onPrimaryContainer),
+            Icon(
+              Icons.menu_book_rounded,
+              size: compact ? 56 : 72,
+              color: cs.onPrimaryContainer,
+            ),
             const SizedBox(height: 16),
+            // Always-Arabic title line.
             Text(
               'المصحف النيجيري',
               textDirection: TextDirection.rtl,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontFamily: 'Nigerian',
-                fontSize: compact ? 22 : 28,
+                fontFamily: 'Ruwudu',
+                fontSize: compact ? 24 : 30,
+                fontWeight: FontWeight.w700,
                 color: cs.onPrimaryContainer,
                 height: 1.4,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Nigerian Mushaf',
+              l.appTitle,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: compact ? 18 : 22,
@@ -154,14 +143,13 @@ class _HeroCard extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
                 color: cs.onPrimaryContainer.withAlpha(30),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
-                'by Quran Quorum',
+                l.appBy,
                 style: TextStyle(
                   fontSize: 13,
                   color: cs.onPrimaryContainer.withAlpha(200),
@@ -178,25 +166,16 @@ class _HeroCard extends StatelessWidget {
 class _DescriptionCard extends StatelessWidget {
   const _DescriptionCard({required this.cs});
   final ColorScheme cs;
-
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return _SectionCard(
       cs: cs,
-      title: 'About',
+      title: l.aboutSectionAbout,
       icon: Icons.info_outline,
-      child: const Text(
-        'The Nigerian Mushaf App presents the Nigerian Mushaf as scalable, '
-        'selectable text rendered in a custom Nigerian Maghribi font — not '
-        'scanned PDFs. It faithfully preserves the original colouring, '
-        'rubrication, all diacritic marks, and the distinctive Maghribi '
-        'spelling and orthography of the Nigerian tradition.\n\n'
-        'The Nigerian Mushaf is one of the most widely used Quran manuscripts '
-        'in West Africa. Its unique Maghribi script, distinct from the Uthmāni '
-        'rasm used elsewhere, reflects centuries of West African Quranic '
-        'scholarship and transmission. This app brings that tradition to '
-        'digital devices without compromising its visual integrity.',
-        style: TextStyle(fontSize: 15, height: 1.7),
+      child: Text(
+        l.aboutDescription,
+        style: const TextStyle(fontSize: 15, height: 1.7),
       ),
     );
   }
@@ -205,23 +184,22 @@ class _DescriptionCard extends StatelessWidget {
 class _FeaturesCard extends StatelessWidget {
   const _FeaturesCard({required this.cs});
   final ColorScheme cs;
-
   @override
   Widget build(BuildContext context) {
-    const features = [
-      (Icons.font_download_outlined,  'Custom Nigerian Maghribi font that matches the printed letterforms exactly'),
-      (Icons.zoom_in,                 'Vector text for crisp zoom and clear readability on any screen size'),
-      (Icons.palette_outlined,        'All original markings, colours, and diacritics faithfully retained'),
-      (Icons.search,                  'Full-text search in Qiyāsī, Uthmānī, and root-based modes'),
-      (Icons.auto_stories_outlined,   'Dual-page spread view for an authentic open-book experience'),
-      (Icons.dark_mode_outlined,      'Multiple themes including Light, Dark, Monochrome, OLED Black and Custom'),
-      (Icons.swap_vert,               'Vertical and horizontal scroll directions with swipe or slide modes'),
-      (Icons.list_alt_outlined,       'Sūrah, page, and verse index for quick navigation'),
+    final l = AppLocalizations.of(context);
+    final features = <(IconData, String)>[
+      (Icons.image_outlined, l.featImages),
+      (Icons.dark_mode_outlined, l.featThemes),
+      (Icons.swap_vert, l.featModes),
+      (Icons.auto_stories_outlined, l.featDualZoom),
+      (Icons.search, l.featSearch),
+      (Icons.list_alt_outlined, l.featIndexes),
+      (Icons.bookmark_border, l.featBookmarks),
+      (Icons.brightness_3, l.featBrightness),
     ];
-
     return _SectionCard(
       cs: cs,
-      title: 'Features',
+      title: l.aboutSectionFeatures,
       icon: Icons.star_outline,
       child: Column(
         children: features.map((f) {
@@ -258,21 +236,20 @@ class _FeaturesCard extends StatelessWidget {
 class _TechCard extends StatelessWidget {
   const _TechCard({required this.cs});
   final ColorScheme cs;
-
   @override
   Widget build(BuildContext context) {
-    const items = [
-      ('Framework',  'Flutter (Dart)'),
-      ('State',      'Riverpod'),
-      ('Font',       'Nigerian Maghribi (custom TTF)'),
-      ('Script',     'Qiyāsī (primary) · Uthmānī (search)'),
-      ('Images',     'High-res PNG scans (1930 × 2480 px)'),
-      ('Pages',      '604 total'),
+    final l = AppLocalizations.of(context);
+    // Labels localised; values are proper nouns / numbers (kept as-is).
+    final items = <(String, String)>[
+      (l.techFramework, 'Flutter (Dart)'),
+      (l.techState, 'Riverpod'),
+      (l.techRendering, 'Two-layer PNG (ink + borders)'),
+      (l.techImagesLabel, '1930 × 2480 px'),
+      (l.techPagesLabel, '604'),
     ];
-
     return _SectionCard(
       cs: cs,
-      title: 'Technical',
+      title: l.aboutSectionTechnical,
       icon: Icons.code,
       child: Column(
         children: items.map((item) {
@@ -281,7 +258,7 @@ class _TechCard extends StatelessWidget {
             child: Row(
               children: [
                 SizedBox(
-                  width: 90,
+                  width: 110,
                   child: Text(
                     item.$1,
                     style: TextStyle(
@@ -292,10 +269,7 @@ class _TechCard extends StatelessWidget {
                   ),
                 ),
                 Expanded(
-                  child: Text(
-                    item.$2,
-                    style: const TextStyle(fontSize: 13),
-                  ),
+                  child: Text(item.$2, style: const TextStyle(fontSize: 13)),
                 ),
               ],
             ),
@@ -310,63 +284,33 @@ class _CreditsCard extends StatelessWidget {
   const _CreditsCard({required this.cs, this.compact = false});
   final ColorScheme cs;
   final bool compact;
-
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return _SectionCard(
       cs: cs,
-      title: 'Credits',
+      title: l.aboutSectionCredits,
       icon: Icons.favorite_outline,
       child: compact
           ? Text(
-              '© Quran Quorum\nAll rights reserved.',
+              l.aboutCreditsShort,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 13,
                 color: cs.onSurface.withAlpha(180),
               ),
             )
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Developed by Quran Quorum',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: cs.onSurface,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'The Nigerian Mushaf is a sacred manuscript with deep roots '
-                  'in the West African Quranic tradition. We have strived to '
-                  'represent it digitally with the utmost care and fidelity.\n\n'
-                  'All rights to the Nigerian Mushaf script belong to their '
-                  'respective custodians and scholarship communities.',
-                  style: TextStyle(
-                    fontSize: 13,
-                    height: 1.6,
-                    color: cs.onSurface.withAlpha(200),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  '© Quran Quorum. All rights reserved.',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: cs.onSurface.withAlpha(140),
-                  ),
-                ),
-              ],
+          : Text(
+              l.aboutCreditsBody,
+              style: TextStyle(
+                fontSize: 13,
+                height: 1.6,
+                color: cs.onSurface.withAlpha(200),
+              ),
             ),
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Shared section card wrapper
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _SectionCard extends StatelessWidget {
   const _SectionCard({
@@ -375,12 +319,10 @@ class _SectionCard extends StatelessWidget {
     required this.icon,
     required this.child,
   });
-
   final ColorScheme cs;
   final String title;
   final IconData icon;
   final Widget child;
-
   @override
   Widget build(BuildContext context) {
     return Card(

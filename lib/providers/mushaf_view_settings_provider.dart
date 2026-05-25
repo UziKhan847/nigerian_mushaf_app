@@ -5,28 +5,28 @@ import 'package:nigerian_mushaf_app/providers/shared_prefs_provider.dart';
 class MushafViewSettings {
   const MushafViewSettings({
     required this.scrollDirection,
-    required this.isSlideMode,
+    required this.isScrollMode,
     required this.isDualPageEnabled,
   });
 
-  /// [Axis.vertical] = scroll up/down; [Axis.horizontal] = swipe left/right.
+  /// [Axis.vertical] = up/down; [Axis.horizontal] = left/right.
   final Axis scrollDirection;
 
-  /// true  = ListView smooth continuous scroll (can stop mid-page).
-  /// false = PageView that snaps to a full page on release.
-  final bool isSlideMode;
+  /// true  = Scroll mode: PageView with pageSnapping off → smooth continuous
+  ///         scrolling that can stop between pages.
+  /// false = Swipe mode: PageView that snaps to a full page on release.
+  final bool isScrollMode;
 
-  /// When true the user has manually enabled dual-page regardless of orientation.
-  /// The view builder also auto-enables dual-page in landscape.
+  /// User-enabled dual-page (also auto-enabled in landscape by the view).
   final bool isDualPageEnabled;
 
   MushafViewSettings copyWith({
     Axis? scrollDirection,
-    bool? isSlideMode,
+    bool? isScrollMode,
     bool? isDualPageEnabled,
   }) => MushafViewSettings(
     scrollDirection: scrollDirection ?? this.scrollDirection,
-    isSlideMode: isSlideMode ?? this.isSlideMode,
+    isScrollMode: isScrollMode ?? this.isScrollMode,
     isDualPageEnabled: isDualPageEnabled ?? this.isDualPageEnabled,
   );
 }
@@ -37,8 +37,8 @@ final mushafViewSettingsProvider =
     );
 
 class MushafViewSettingsNotifier extends Notifier<MushafViewSettings> {
-  static const _dirKey      = 'scrollDirection';
-  static const _modeKey     = 'isSlideMode';
+  static const _dirKey = 'scrollDirection';
+  static const _modeKey = 'isScrollMode';
   static const _dualPageKey = 'isDualPageEnabled';
 
   @override
@@ -48,25 +48,24 @@ class MushafViewSettingsNotifier extends Notifier<MushafViewSettings> {
       scrollDirection: prefs.getString(_dirKey) == 'horizontal'
           ? Axis.horizontal
           : Axis.vertical,
-      isSlideMode:       prefs.getBool(_modeKey)     ?? false,
+      isScrollMode: prefs.getBool(_modeKey) ?? false,
       isDualPageEnabled: prefs.getBool(_dualPageKey) ?? false,
     );
   }
 
   void toggleScrollDirection() {
-    final newDir = state.scrollDirection == Axis.vertical
+    final dir = state.scrollDirection == Axis.vertical
         ? Axis.horizontal
         : Axis.vertical;
-    state = state.copyWith(scrollDirection: newDir);
-    ref.read(sharedPrefsProv).setString(
-      _dirKey,
-      newDir == Axis.horizontal ? 'horizontal' : 'vertical',
-    );
+    state = state.copyWith(scrollDirection: dir);
+    ref
+        .read(sharedPrefsProv)
+        .setString(_dirKey, dir == Axis.horizontal ? 'horizontal' : 'vertical');
   }
 
   void togglePageMode() {
-    state = state.copyWith(isSlideMode: !state.isSlideMode);
-    ref.read(sharedPrefsProv).setBool(_modeKey, state.isSlideMode);
+    state = state.copyWith(isScrollMode: !state.isScrollMode);
+    ref.read(sharedPrefsProv).setBool(_modeKey, state.isScrollMode);
   }
 
   void toggleDualPage() {

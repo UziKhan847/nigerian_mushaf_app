@@ -1,0 +1,23 @@
+flutter_launcher_icons:
+  # ── Platforms ──────────────────────────────────────────────────────────────
+  android: true
+  ios: true
+  min_sdk_android: 21
+
+  # Legacy / fallback square icon (used by older Android and as the iOS base).
+  image_path: "assets/apk_icons/app_launcher_icon.png"
+
+  # ── Android adaptive icon (API 26+) ──────────────────────────────────────────
+  # Foreground/background are composited by the launcher; monochrome powers the
+  # Android 13+ themed-icon (Material You) treatment.
+  adaptive_icon_background: "assets/apk_icons/adaptive_icon_background.png"
+  adaptive_icon_foreground: "assets/apk_icons/adaptive_icon_foreground.png"
+  adaptive_icon_monochrome: "assets/apk_icons/adaptive_icon_monochrome.png"
+
+  # ── iOS ──────────────────────────────────────────────────────────────────────
+  # iOS does NOT support adaptive icons or transparency. We point iOS at the
+  # opaque square icon and strip any alpha channel (the App Store rejects icons
+  # with transparency). background_color_ios fills any transparent pixels.
+  image_path_ios: "assets/apk_icons/app_launcher_icon.png"
+  remove_alpha_ios: true
+  background_color_ios: "#FFFFFF"

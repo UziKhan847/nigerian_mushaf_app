@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nigerian_mushaf_app/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nigerian_mushaf_app/custom_nav_rail/nav_rail_button.dart';
 import 'package:nigerian_mushaf_app/search_by_word/my_search_delegate.dart';
@@ -15,12 +16,15 @@ class SearchItem extends ConsumerWidget {
 
     return NavRailButton(
       icon: Icons.search,
-      label: 'Search',
+      label: AppLocalizations.of(context).navSearch,
       onPressed: () {
         removeOverlay();
         showSearch(
           context: context,
-          delegate: MySearchDelegate(verses: verses),
+          delegate: MySearchDelegate(
+            verses: verses,
+            searchHint: AppLocalizations.of(context).searchHint,
+          ),
         );
       },
     );

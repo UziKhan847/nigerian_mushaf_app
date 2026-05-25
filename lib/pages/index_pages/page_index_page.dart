@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nigerian_mushaf_app/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nigerian_mushaf_app/pages/index_pages/index_tiles/page_index_tile.dart';
 import 'package:nigerian_mushaf_app/providers/mushaf_page_index_provider.dart';
@@ -12,7 +13,7 @@ class PageIndexPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Pages' Index"),
+        title: Text(AppLocalizations.of(context).pageIndexTitle),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),

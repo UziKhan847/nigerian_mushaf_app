@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nigerian_mushaf_app/l10n/app_localizations.dart';
 import 'package:nigerian_mushaf_app/extensions/string_extension.dart';
 import 'package:nigerian_mushaf_app/search_by_word/paginated_suggestions.dart';
 import 'package:nigerian_mushaf_app/mushaf/mushaf_verses_data_models/mushaf_verse.dart';
@@ -27,9 +28,10 @@ extension SearchModeLabel on SearchMode {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class MySearchDelegate extends SearchDelegate {
-  MySearchDelegate({required this.verses});
+  MySearchDelegate({required this.verses, required this.searchHint});
 
   final List<MushafVerse> verses;
+  final String searchHint;
 
   final _modeNotifier = ValueNotifier<SearchMode>(SearchMode.qiyas);
 
@@ -56,7 +58,10 @@ class MySearchDelegate extends SearchDelegate {
     var s = text.removeTashkilExceptSmallMaddLetters;
 
     // Strip common proclitic prefixes: و ف ب ل ك ال
-    s = s.replaceAll(RegExp(r'^(وال|فال|بال|كال|لل|وَ|فَ|بِ|لِ|كَ|و|ف|ب|ل|ك|ال)'), '');
+    s = s.replaceAll(
+      RegExp(r'^(وال|فال|بال|كال|لل|وَ|فَ|بِ|لِ|كَ|و|ف|ب|ل|ك|ال)'),
+      '',
+    );
 
     // Strip common enclitic suffixes: ون ين ات ة ها هم هن كم وا ني تم ا ي ه
     s = s.replaceAll(
@@ -81,7 +86,7 @@ class MySearchDelegate extends SearchDelegate {
   // ── SearchDelegate overrides ──────────────────────────────────────────────
 
   @override
-  String get searchFieldLabel => 'Search Mushaf…';
+  String get searchFieldLabel => searchHint;
 
   @override
   ThemeData appBarTheme(BuildContext context) {
@@ -177,13 +182,15 @@ class _ModeBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
         color: cs.surfaceContainerLow,
-        border: Border(bottom: BorderSide(color: cs.outlineVariant, width: 0.5)),
+        border: Border(
+          bottom: BorderSide(color: cs.outlineVariant, width: 0.5),
+        ),
       ),
       child: SegmentedButton<SearchMode>(
         segments: SearchMode.values.map((m) {
           return ButtonSegment<SearchMode>(
             value: m,
-            label: Text(m.label),
+            label: Text(_modeLabel(context, m)),
             icon: Icon(_iconFor(m), size: 16),
           );
         }).toList(),
@@ -195,6 +202,18 @@ class _ModeBar extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _modeLabel(BuildContext context, SearchMode m) {
+    final l = AppLocalizations.of(context);
+    switch (m) {
+      case SearchMode.qiyas:
+        return l.searchModeQiyas;
+      case SearchMode.uthmani:
+        return l.searchModeUthmani;
+      case SearchMode.root:
+        return l.searchModeRoot;
+    }
   }
 
   IconData _iconFor(SearchMode m) {
@@ -217,14 +236,15 @@ class _EmptyState extends StatelessWidget {
   const _EmptyState({required this.mode});
   final SearchMode mode;
 
-  String get _hint {
+  String _hintFor(BuildContext context) {
+    final l = AppLocalizations.of(context);
     switch (mode) {
       case SearchMode.qiyas:
-        return 'Type Arabic text to search by standard spelling.\n\nTashkīl (diacritics) is ignored except for small madd letters.';
+        return l.searchHintQiyas;
       case SearchMode.uthmani:
-        return 'Type Arabic text to search by Uthmānī script.\n\nAll diacritics are stripped before matching.';
+        return l.searchHintUthmani;
       case SearchMode.root:
-        return 'Type a root or stem word to find all related forms.\n\nCommon prefixes and suffixes are stripped automatically.';
+        return l.searchHintRoot;
     }
   }
 
@@ -243,7 +263,7 @@ class _EmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              _hint,
+              _hintFor(context),
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,

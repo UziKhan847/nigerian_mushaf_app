@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nigerian_mushaf_app/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nigerian_mushaf_app/custom_nav_rail/nav_rail_button.dart';
 import 'package:nigerian_mushaf_app/my_themes.dart';
@@ -6,51 +7,40 @@ import 'package:nigerian_mushaf_app/providers/theme_provider.dart';
 
 class BgColorItem extends ConsumerWidget {
   const BgColorItem({super.key, required this.removeOverlay});
-
   final VoidCallback removeOverlay;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeState = ref.watch(themeProvider);
-    final isCustom = themeState.appTheme == AppTheme.custom;
-
+    final isCustom = ref.watch(themeProvider).appTheme == AppTheme.custom;
     return NavRailButton(
       icon: Icons.color_lens_outlined,
-      label: 'Page\nColour',
+      label: AppLocalizations.of(context).navPageColour,
       isActive: isCustom,
       onPressed: () {
-        // Capture context BEFORE overlay removal unmounts this widget.
-        final capturedContext = context;
-        final currentColor = themeState.customBgColor;
+        final ctx = context;
         removeOverlay();
-        _showColorPicker(capturedContext, currentColor);
-      },
-    );
-  }
-
-  void _showColorPicker(BuildContext context, Color initialColor) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      // Consumer owns its own ref — safe even after nav rail is unmounted.
-      builder: (_) => Consumer(
-        builder: (ctx, ref, _) {
-          final state = ref.watch(themeProvider);
-          return _BgColorSheet(
-            currentColor: state.customBgColor,
-            onColorChanged: (color) {
-              ref.read(themeProvider.notifier).setCustomBgColor(color);
-              // Auto-switch to custom theme so the colour is applied immediately.
-              if (state.appTheme != AppTheme.custom) {
-                ref.read(themeProvider.notifier).setTheme(AppTheme.custom);
-              }
+        showModalBottomSheet(
+          context: ctx,
+          isScrollControlled: true,   // ← prevents overflow
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          builder: (_) => Consumer(
+            builder: (sheetCtx, ref, _) {
+              final ts = ref.watch(themeProvider);
+              return _BgColorSheet(
+                currentColor: ts.customBgColor,
+                onColorChanged: (c) {
+                  ref.read(themeProvider.notifier).setCustomBgColor(c);
+                  if (ts.appTheme != AppTheme.custom) {
+                    ref.read(themeProvider.notifier).setTheme(AppTheme.custom);
+                  }
+                },
+              );
             },
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }
@@ -58,11 +48,7 @@ class BgColorItem extends ConsumerWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _BgColorSheet extends StatefulWidget {
-  const _BgColorSheet({
-    required this.currentColor,
-    required this.onColorChanged,
-  });
-
+  const _BgColorSheet({required this.currentColor, required this.onColorChanged});
   final Color currentColor;
   final ValueChanged<Color> onColorChanged;
 
@@ -82,7 +68,6 @@ class _BgColorSheetState extends State<_BgColorSheet> {
   @override
   void didUpdateWidget(covariant _BgColorSheet old) {
     super.didUpdateWidget(old);
-    // Keep slider positions in sync if the colour changes externally.
     if (old.currentColor != widget.currentColor) {
       _hsl = HSLColor.fromColor(widget.currentColor);
     }
@@ -98,139 +83,126 @@ class _BgColorSheetState extends State<_BgColorSheet> {
     final cs = Theme.of(context).colorScheme;
     final current = _hsl.toColor();
 
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        24,
-        16,
-        24,
-        MediaQuery.of(context).viewInsets.bottom + 32,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Handle
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: cs.onSurfaceVariant.withAlpha(80),
-                borderRadius: BorderRadius.circular(2),
+    return SafeArea(
+      child: SingleChildScrollView(
+        // SingleChildScrollView handles the case where the sheet content
+        // is taller than the available space (e.g. small / landscape screens).
+        padding: EdgeInsets.fromLTRB(
+          24, 16, 24,
+          // Extra bottom padding so the preset circles clear the nav bar.
+          MediaQuery.of(context).viewInsets.bottom + 16,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Handle bar
+            Center(
+              child: Container(
+                width: 40, height: 4,
+                decoration: BoxDecoration(
+                  color: cs.onSurfaceVariant.withAlpha(80),
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 20),
+            const SizedBox(height: 18),
 
-          Row(
-            children: [
-              Text(
-                'Page Background Colour',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
+            // Title + preview swatch
+            Row(children: [
+              Text(AppLocalizations.of(context).colourPickerTitle,
+                  style: Theme.of(context).textTheme.titleLarge),
               const Spacer(),
-              // Live preview swatch
               Container(
-                width: 40,
-                height: 40,
+                width: 40, height: 40,
                 decoration: BoxDecoration(
                   color: current,
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: cs.outline.withAlpha(80),
-                  ),
+                  border: Border.all(color: cs.outline.withAlpha(80)),
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 24),
+            ]),
+            const SizedBox(height: 20),
 
-          _SliderRow(
-            label: 'Hue',
-            value: _hsl.hue / 360.0,
-            gradient: LinearGradient(
-              colors: List.generate(
-                13,
-                (i) => HSLColor.fromAHSL(
-                  1,
-                  i * 30.0,
-                  _hsl.saturation.clamp(0.1, 1.0),
-                  _hsl.lightness,
-                ).toColor(),
-              ),
+            _SliderRow(
+              label: AppLocalizations.of(context).colourPickerHue,
+              value: _hsl.hue / 360.0,
+              gradient: LinearGradient(colors: List.generate(13,
+                  (i) => HSLColor.fromAHSL(
+                    1, i * 30.0,
+                    _hsl.saturation.clamp(0.1, 1.0),
+                    _hsl.lightness,
+                  ).toColor())),
+              onChanged: (v) => _update(_hsl.withHue(v * 360.0)),
             ),
-            onChanged: (v) => _update(_hsl.withHue(v * 360.0)),
-          ),
-          const SizedBox(height: 16),
+            const SizedBox(height: 14),
 
-          _SliderRow(
-            label: 'Saturation',
-            value: _hsl.saturation,
-            gradient: LinearGradient(colors: [
-              HSLColor.fromAHSL(1, _hsl.hue, 0, _hsl.lightness).toColor(),
-              HSLColor.fromAHSL(1, _hsl.hue, 1, _hsl.lightness).toColor(),
-            ]),
-            onChanged: (v) => _update(_hsl.withSaturation(v)),
-          ),
-          const SizedBox(height: 16),
+            _SliderRow(
+              label: AppLocalizations.of(context).colourPickerSaturation,
+              value: _hsl.saturation,
+              gradient: LinearGradient(colors: [
+                HSLColor.fromAHSL(1, _hsl.hue, 0, _hsl.lightness).toColor(),
+                HSLColor.fromAHSL(1, _hsl.hue, 1, _hsl.lightness).toColor(),
+              ]),
+              onChanged: (v) => _update(_hsl.withSaturation(v)),
+            ),
+            const SizedBox(height: 14),
 
-          _SliderRow(
-            label: 'Lightness',
-            value: _hsl.lightness,
-            gradient: LinearGradient(colors: [
-              Colors.black,
-              HSLColor.fromAHSL(1, _hsl.hue, _hsl.saturation, 0.5).toColor(),
-              Colors.white,
-            ]),
-            onChanged: (v) => _update(_hsl.withLightness(v)),
-          ),
-          const SizedBox(height: 24),
+            _SliderRow(
+              label: AppLocalizations.of(context).colourPickerLightness,
+              value: _hsl.lightness,
+              gradient: LinearGradient(colors: [
+                Colors.black,
+                HSLColor.fromAHSL(1, _hsl.hue, _hsl.saturation, 0.5).toColor(),
+                Colors.white,
+              ]),
+              onChanged: (v) => _update(_hsl.withLightness(v)),
+            ),
+            const SizedBox(height: 20),
 
-          // Quick presets
-          Text('Presets', style: Theme.of(context).textTheme.labelLarge),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: _presets.map((c) {
-              final selected =
-                  (current.r - c.r).abs() < 2 &&
-                  (current.g - c.g).abs() < 2 &&
-                  (current.b - c.b).abs() < 2;
-              return GestureDetector(
-                onTap: () => _update(HSLColor.fromColor(c)),
-                child: Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: c,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: selected ? cs.primary : cs.outline.withAlpha(80),
-                      width: selected ? 2.5 : 1,
+            Text(AppLocalizations.of(context).colourPickerPresets, style: Theme.of(context).textTheme.labelLarge),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 10, runSpacing: 10,
+              children: _presets.map((c) {
+                final sel =
+                    (current.r - c.r).abs() < 0.01 &&
+                    (current.g - c.g).abs() < 0.01 &&
+                    (current.b - c.b).abs() < 0.01;
+                return GestureDetector(
+                  onTap: () => _update(HSLColor.fromColor(c)),
+                  child: Container(
+                    width: 36, height: 36,
+                    decoration: BoxDecoration(
+                      color: c,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: sel ? cs.primary : cs.outline.withAlpha(80),
+                        width: sel ? 2.5 : 1,
+                      ),
                     ),
                   ),
-                ),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 8),
-        ],
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
       ),
     );
   }
 
-  static const List<Color> _presets = [
+  static const _presets = [
     Color(0xFFFFFFFF),
-    Color(0xFFE4D2B7), // warm parchment
-    Color(0xFFD4C5A0), // aged cream
-    Color(0xFFC8E6C9), // soft green
-    Color(0xFFBBDEFB), // soft blue
-    Color(0xFFF8BBD0), // soft pink
-    Color(0xFFE1BEE7), // soft lavender
-    Color(0xFFFFF9C4), // soft yellow
-    Color(0xFF263238), // dark slate
-    Color(0xFF1A1A1A), // near-black
+    Color(0xFFE4D2B7),
+    Color(0xFFD4C5A0),
+    Color(0xFFC8E6C9),
+    Color(0xFFBBDEFB),
+    Color(0xFFF8BBD0),
+    Color(0xFFE1BEE7),
+    Color(0xFFFFF9C4),
+    Color(0xFF263238),
+    Color(0xFF1A1A1A),
   ];
 }
 
@@ -243,7 +215,6 @@ class _SliderRow extends StatelessWidget {
     required this.gradient,
     required this.onChanged,
   });
-
   final String label;
   final double value;
   final LinearGradient gradient;
