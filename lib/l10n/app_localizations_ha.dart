@@ -299,4 +299,7 @@ class AppLocalizationsHa extends AppLocalizations {
 
   @override
   String get aboutCreditsShort => '© Quran Quorum\nAn kiyaye dukkan haƙƙoƙi.';
+
+  @override
+  String get juzIndexTitle => 'Jerin Juzu\'i';
 }

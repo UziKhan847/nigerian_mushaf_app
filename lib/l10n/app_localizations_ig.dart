@@ -300,4 +300,7 @@ class AppLocalizationsIg extends AppLocalizations {
 
   @override
   String get aboutCreditsShort => '© Quran Quorum\nIkike niile echekwabara.';
+
+  @override
+  String get juzIndexTitle => 'Ndepụta Juzʾ';
 }

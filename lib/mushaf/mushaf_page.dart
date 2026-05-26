@@ -5,8 +5,8 @@ import 'package:nigerian_mushaf_app/providers/is_zoomed_provider.dart';
 import 'package:nigerian_mushaf_app/data/mushaf_index_data.dart';
 import 'package:nigerian_mushaf_app/providers/theme_provider.dart';
 
-const double _kImageW = 1930;
-const double _kImageH = 2480;
+const double _kImageW      = 1930;
+const double _kImageH      = 2480;
 const double _kImageAspect = _kImageW / _kImageH;
 
 /// Shared mushaf page-header height, used by the page layout and the
@@ -17,7 +17,7 @@ class MushafPage extends ConsumerStatefulWidget {
   const MushafPage({
     super.key,
     required this.index,
-    this.landscapeZoom = false,
+    this.landscapeZoom      = false,
     this.ninetyPercentWidth = false,
   });
   final int index;
@@ -39,6 +39,17 @@ class _MushafPageState extends ConsumerState<MushafPage> {
 
   void _resetZoom() => _transformCtrl.value = Matrix4.identity();
 
+  /// Target decode width in physical pixels. The source PNGs are 1930 px wide
+  /// but render into roughly the screen width, so decoding at screen-width ×
+  /// devicePixelRatio (capped at the source width) cuts memory dramatically on
+  /// phones without any visible quality loss. Computed from MediaQuery so the
+  /// display and precache cache keys match (precache stays effective).
+  int _decodeWidth(BuildContext context) {
+    final mq = MediaQuery.of(context);
+    final px = (mq.size.width * mq.devicePixelRatio).round();
+    return px.clamp(1, _kImageW.toInt());
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -50,34 +61,32 @@ class _MushafPageState extends ConsumerState<MushafPage> {
   void _precache(int i) {
     if (i < 0 || i >= 604) return;
     final n = i + 1;
-    precacheImage(AssetImage('assets/pages/content/$n.png'), context);
-    precacheImage(AssetImage('assets/pages/borders/$n.png'), context);
+    final w = _decodeWidth(context);
+    // ResizeImage with the same width as the displayed Image.asset(cacheWidth:)
+    // so both share one cache entry.
+    precacheImage(
+        ResizeImage(AssetImage('assets/pages/content/$n.png'), width: w), context);
+    precacheImage(
+        ResizeImage(AssetImage('assets/pages/borders/$n.png'), width: w), context);
   }
 
   // ── Two-layer image ────────────────────────────────────────────────────────
   Widget _layeredImage(ThemeState ts, double w, double h) {
-    final n = widget.index + 1;
-    final filter = MyThemes.pageColorFilter(ts.appTheme, ts.customBgColor);
+    final n       = widget.index + 1;
+    final filter  = MyThemes.pageColorFilter(ts.appTheme, ts.customBgColor);
+    final decodeW = _decodeWidth(context);
 
-    Widget content = Image.asset(
-      'assets/pages/content/$n.png',
-      fit: BoxFit.fill,
-      filterQuality: FilterQuality.medium,
-      frameBuilder: _frameBuilder,
-    );
-    if (filter != null) {
-      content = ColorFiltered(colorFilter: filter, child: content);
-    }
+    Widget content = Image.asset('assets/pages/content/$n.png',
+        fit: BoxFit.fill, filterQuality: FilterQuality.medium,
+        cacheWidth: decodeW, frameBuilder: _frameBuilder);
+    if (filter != null) content = ColorFiltered(colorFilter: filter, child: content);
 
-    final border = Image.asset(
-      'assets/pages/borders/$n.png',
-      fit: BoxFit.fill,
-      filterQuality: FilterQuality.medium,
-    );
+    final border = Image.asset('assets/pages/borders/$n.png',
+        fit: BoxFit.fill, filterQuality: FilterQuality.medium,
+        cacheWidth: decodeW);
 
     return SizedBox(
-      width: w,
-      height: h,
+      width: w, height: h,
       child: Stack(fit: StackFit.expand, children: [content, border]),
     );
   }
@@ -89,9 +98,9 @@ class _MushafPageState extends ConsumerState<MushafPage> {
 
   @override
   Widget build(BuildContext context) {
-    final ts = ref.watch(themeProvider);
+    final ts       = ref.watch(themeProvider);
     final zoomMode = ref.watch(isZoomedInProvider);
-    final bgColor = MyThemes.pageBackgroundColor(ts.appTheme, ts.customBgColor);
+    final bgColor  = MyThemes.pageBackgroundColor(ts.appTheme, ts.customBgColor);
 
     // When zoom mode is deactivated externally (button / double-tap on another
     // page), reset this page's transform back to identity.
@@ -113,65 +122,78 @@ class _MushafPageState extends ConsumerState<MushafPage> {
           } else {
             final availH = H - hH;
             if (availH > 0 && W > 0) {
-              if (W / availH > _kImageAspect) {
-                imgH = availH;
-                imgW = availH * _kImageAspect;
-              } else {
-                imgW = W;
-                imgH = W / _kImageAspect;
-              }
+              if (W / availH > _kImageAspect) { imgH = availH; imgW = availH * _kImageAspect; }
+              else                            { imgW = W;      imgH = W / _kImageAspect; }
             } else {
-              imgW = W;
-              imgH = W / _kImageAspect;
+              imgW = W; imgH = W / _kImageAspect;
             }
           }
 
           final image = _layeredImage(ts, imgW, imgH);
+          final header =
+              _MushafPageHeaderBar(index: widget.index, themeState: ts, imageWidth: imgW);
 
-          // Zoom is ONLY available in zoom mode (activated via the Zoom nav
-          // item). This prevents pinch-zoom from conflicting with swipe/scroll
-          // gestures during normal reading. In zoom mode the outer scroll is
-          // already locked by the view builder, so InteractiveViewer owns all
-          // gestures: pinch / Ctrl+scroll to zoom, drag to pan, double-tap to
-          // reset + exit.
-          final Widget pageBody;
+          // Zoom mode (activated via the Zoom nav item only): header stays
+          // fixed on top, the image below is pinch/Ctrl-scroll zoomable. The
+          // outer scroll is already locked by the view builder, so the
+          // InteractiveViewer owns all gestures; double-tap resets + exits.
           if (zoomMode) {
-            pageBody = GestureDetector(
-              onDoubleTap: () {
-                _resetZoom();
-                ref.read(isZoomedInProvider.notifier).setZoomed(false);
-              },
-              child: InteractiveViewer(
-                transformationController: _transformCtrl,
-                minScale: 1.0,
-                maxScale: 5.0,
-                panEnabled: true,
-                boundaryMargin: EdgeInsets.zero,
-                child: Center(child: image),
-              ),
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                header,
+                Expanded(
+                  child: GestureDetector(
+                    onDoubleTap: () {
+                      _resetZoom();
+                      ref.read(isZoomedInProvider.notifier).setZoomed(false);
+                    },
+                    child: InteractiveViewer(
+                      transformationController: _transformCtrl,
+                      minScale: 1.0,
+                      maxScale: 5.0,
+                      panEnabled: true,
+                      boundaryMargin: EdgeInsets.zero,
+                      child: Center(child: image),
+                    ),
+                  ),
+                ),
+              ],
             );
-          } else if (widget.landscapeZoom) {
-            // Landscape-horizontal: 90 % width, inner vertical scroll
-            // (outer PageView scrolls horizontally → no axis conflict).
-            pageBody = SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Center(child: image),
-            );
-          } else {
-            // Normal reading + ListView tall-item mode: plain image, NO zoom.
-            pageBody = Center(child: image);
           }
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _MushafPageHeaderBar(
-                index: widget.index,
-                themeState: ts,
-                imageWidth: imgW,
-              ),
-              Expanded(child: pageBody),
-            ],
+          // Landscape-horizontal: header fixed, tall 90 %-width image scrolls
+          // vertically inside (outer PageView scrolls horizontally).
+          if (widget.landscapeZoom) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                header,
+                Expanded(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Center(child: image),
+                  ),
+                ),
+              ],
+            );
+          }
+
+          // ListView tall-item mode: header + image fill the fixed itemExtent.
+          if (widget.ninetyPercentWidth) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [header, image],
+            );
+          }
+
+          // Normal fit: the header sits DIRECTLY above the image and the whole
+          // block is centred — so the header is never pinned to the screen top.
+          return Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [header, image],
+            ),
           );
         },
       ),
@@ -206,10 +228,7 @@ class _LVPState extends State<LandscapeVerticalPage> {
   bool _lock = false;
 
   @override
-  void dispose() {
-    _sc.dispose();
-    super.dispose();
-  }
+  void dispose() { _sc.dispose(); super.dispose(); }
 
   void _onUpdate(ScrollUpdateNotification n) {
     if (_lock) return;
@@ -225,73 +244,52 @@ class _LVPState extends State<LandscapeVerticalPage> {
     _lock = true;
     _sc.jumpTo(_sc.position.pixels.clamp(0.0, _sc.position.maxScrollExtent));
     nav();
-    Future.delayed(const Duration(milliseconds: 600), () {
-      if (mounted) _lock = false;
-    });
+    Future.delayed(const Duration(milliseconds: 600),
+        () { if (mounted) _lock = false; });
   }
 
   @override
   Widget build(BuildContext context) {
-    final imgW = MediaQuery.of(context).size.width * 0.90;
+    final mq   = MediaQuery.of(context);
+    final imgW = mq.size.width * 0.90;
     final imgH = imgW / _kImageAspect;
+    final decodeW =
+        (mq.size.width * mq.devicePixelRatio).round().clamp(1, _kImageW.toInt());
 
-    return Consumer(
-      builder: (_, ref, _) {
-        final ts = ref.watch(themeProvider);
-        final bgColor = MyThemes.pageBackgroundColor(
-          ts.appTheme,
-          ts.customBgColor,
-        );
-        final filter = MyThemes.pageColorFilter(ts.appTheme, ts.customBgColor);
-        final n = widget.index + 1;
+    return Consumer(builder: (_, ref, _) {
+      final ts      = ref.watch(themeProvider);
+      final bgColor = MyThemes.pageBackgroundColor(ts.appTheme, ts.customBgColor);
+      final filter  = MyThemes.pageColorFilter(ts.appTheme, ts.customBgColor);
+      final n = widget.index + 1;
 
-        Widget content = Image.asset(
-          'assets/pages/content/$n.png',
-          fit: BoxFit.fill,
-          filterQuality: FilterQuality.medium,
-        );
-        if (filter != null) {
-          content = ColorFiltered(colorFilter: filter, child: content);
-        }
-        final border = Image.asset(
-          'assets/pages/borders/$n.png',
-          fit: BoxFit.fill,
-          filterQuality: FilterQuality.medium,
-        );
+      Widget content = Image.asset('assets/pages/content/$n.png',
+          fit: BoxFit.fill, filterQuality: FilterQuality.medium, cacheWidth: decodeW);
+      if (filter != null) content = ColorFiltered(colorFilter: filter, child: content);
+      final border = Image.asset('assets/pages/borders/$n.png',
+          fit: BoxFit.fill, filterQuality: FilterQuality.medium, cacheWidth: decodeW);
 
-        final pageImage = SizedBox(
-          width: imgW,
-          height: imgH,
-          child: Stack(fit: StackFit.expand, children: [content, border]),
-        );
+      final pageImage = SizedBox(
+        width: imgW, height: imgH,
+        child: Stack(fit: StackFit.expand, children: [content, border]),
+      );
 
-        return Container(
-          color: bgColor,
-          child: Column(
-            children: [
-              _MushafPageHeaderBar(
-                index: widget.index,
-                themeState: ts,
-                imageWidth: imgW,
+      return Container(
+        color: bgColor,
+        child: Column(children: [
+          _MushafPageHeaderBar(index: widget.index, themeState: ts, imageWidth: imgW),
+          Expanded(
+            child: NotificationListener<ScrollUpdateNotification>(
+              onNotification: (n) { _onUpdate(n); return false; },
+              child: SingleChildScrollView(
+                controller: _sc,
+                physics: const BouncingScrollPhysics(),
+                child: Center(child: pageImage),
               ),
-              Expanded(
-                child: NotificationListener<ScrollUpdateNotification>(
-                  onNotification: (n) {
-                    _onUpdate(n);
-                    return false;
-                  },
-                  child: SingleChildScrollView(
-                    controller: _sc,
-                    physics: const BouncingScrollPhysics(),
-                    child: Center(child: pageImage),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-        );
-      },
-    );
+        ]),
+      );
+    });
   }
 }
 
@@ -313,17 +311,18 @@ class _MushafPageHeaderBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final page = index + 1;
+    final page  = index + 1;
     final surah = surahNameArForPage(page);
-    final juz = juzForPage(page);
-    final ink = MyThemes.pageHeaderInkColor(
-      themeState.appTheme,
-      themeState.customBgColor,
-    );
+    final juz   = juzForPage(page);
+    final ink   = MyThemes.pageHeaderInkColor(
+        themeState.appTheme, themeState.customBgColor);
 
+    // Scale the font with the page width so dual-page (narrow) spreads don't
+    // get an oversized header relative to the small pages.
+    final fontSize = (imageWidth * 0.042).clamp(10.0, 17.0);
     final style = TextStyle(
       fontFamily: 'Ruwudu',
-      fontSize: 17,
+      fontSize: fontSize,
       color: ink,
       fontWeight: FontWeight.w700,
       height: 1.0,
@@ -334,30 +333,23 @@ class _MushafPageHeaderBar extends StatelessWidget {
       child: Center(
         child: SizedBox(
           width: imageWidth * 0.92,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'سُورَة $surah',
+          child: Stack(alignment: Alignment.center, children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text('سُورَة $surah',
                   textDirection: TextDirection.rtl,
                   style: style,
                   maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  'جُزْء ${toArabicDigits(juz)}',
+                  overflow: TextOverflow.ellipsis),
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Text('جُزْء ${toArabicDigits(juz)}',
                   textDirection: TextDirection.rtl,
                   style: style,
-                  maxLines: 1,
-                ),
-              ),
-            ],
-          ),
+                  maxLines: 1),
+            ),
+          ]),
         ),
       ),
     );

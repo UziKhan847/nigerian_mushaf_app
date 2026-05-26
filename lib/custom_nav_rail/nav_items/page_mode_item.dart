@@ -11,10 +11,8 @@ class PageModeItem extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isScroll = ref.watch(mushafViewSettingsProvider).isScrollMode;
     return NavRailButton(
-      icon: isScroll ? Icons.unfold_more : Icons.swipe_outlined,
-      label: isScroll
-          ? AppLocalizations.of(context).navScrollMode
-          : AppLocalizations.of(context).navSwipeMode,
+      icon:  isScroll ? Icons.unfold_more : Icons.swipe_outlined,
+      label: isScroll ? AppLocalizations.of(context).navScrollMode : AppLocalizations.of(context).navSwipeMode,
       isActive: true,
       onPressed: () =>
           ref.read(mushafViewSettingsProvider.notifier).togglePageMode(),

@@ -193,3 +193,12 @@ int juzForPage(int page1Based) {
   }
   return j;
 }
+
+/// Transliterated surah name active on [page1Based] (1–604).
+String surahNameForPage(int page1Based) {
+  var name = surahList.first.name;
+  for (final s in surahList) {
+    if (s.page <= page1Based) { name = s.name; } else { break; }
+  }
+  return name;
+}

@@ -4,6 +4,7 @@ import 'package:nigerian_mushaf_app/custom_nav_rail/nav_items/page_index_item.da
 import 'package:nigerian_mushaf_app/custom_nav_rail/nav_items/search_item.dart';
 import 'package:nigerian_mushaf_app/custom_nav_rail/nav_items/surah_index_item.dart';
 import 'package:nigerian_mushaf_app/custom_nav_rail/nav_items/verse_index_item.dart';
+import 'package:nigerian_mushaf_app/custom_nav_rail/nav_items/juz_index_item.dart';
 import 'package:nigerian_mushaf_app/custom_nav_rail/nav_items/theme_item.dart';
 import 'package:nigerian_mushaf_app/custom_nav_rail/nav_items/scroll_direction_item.dart';
 import 'package:nigerian_mushaf_app/custom_nav_rail/nav_items/page_mode_item.dart';
@@ -40,13 +41,9 @@ class NavRailBarState extends State<NavRailBar>
   void initState() {
     super.initState();
     _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 240),
-    );
-    _slide = Tween(
-      begin: const Offset(1, 0),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic));
+        vsync: this, duration: const Duration(milliseconds: 240));
+    _slide = Tween(begin: const Offset(1, 0), end: Offset.zero)
+        .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutCubic));
     _fade = CurvedAnimation(parent: _ctrl, curve: Curves.easeOut);
     _ctrl.forward();
   }
@@ -66,10 +63,10 @@ class NavRailBarState extends State<NavRailBar>
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
+    final cs     = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final railBg = isDark ? cs.surfaceContainerHigh : cs.surfaceContainerLowest;
-    final close = widget.removeOverlay;
+    final close  = widget.removeOverlay;
 
     return Align(
       alignment: Alignment.centerRight,
@@ -82,7 +79,7 @@ class NavRailBarState extends State<NavRailBar>
               decoration: BoxDecoration(
                 color: railBg,
                 borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(20),
+                  topLeft:    Radius.circular(20),
                   bottomLeft: Radius.circular(20),
                 ),
                 boxShadow: [
@@ -103,6 +100,7 @@ class NavRailBarState extends State<NavRailBar>
                     PageIndexItem(removeOverlay: close),
                     SurahIndexItem(removeOverlay: close),
                     VerseIndexItem(removeOverlay: close),
+                    JuzIndexItem(removeOverlay: close),
                     BookmarksItem(removeOverlay: close),
                     _divider(),
                     ThemeItem(removeOverlay: close),
@@ -127,7 +125,7 @@ class NavRailBarState extends State<NavRailBar>
   }
 
   Widget _divider() => const Padding(
-    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-    child: Divider(height: 1, thickness: 0.5),
-  );
+        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        child: Divider(height: 1, thickness: 0.5),
+      );
 }

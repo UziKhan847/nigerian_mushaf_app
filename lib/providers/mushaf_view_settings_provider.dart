@@ -25,8 +25,8 @@ class MushafViewSettings {
     bool? isScrollMode,
     bool? isDualPageEnabled,
   }) => MushafViewSettings(
-    scrollDirection: scrollDirection ?? this.scrollDirection,
-    isScrollMode: isScrollMode ?? this.isScrollMode,
+    scrollDirection:   scrollDirection   ?? this.scrollDirection,
+    isScrollMode:      isScrollMode      ?? this.isScrollMode,
     isDualPageEnabled: isDualPageEnabled ?? this.isDualPageEnabled,
   );
 }
@@ -37,8 +37,8 @@ final mushafViewSettingsProvider =
     );
 
 class MushafViewSettingsNotifier extends Notifier<MushafViewSettings> {
-  static const _dirKey = 'scrollDirection';
-  static const _modeKey = 'isScrollMode';
+  static const _dirKey      = 'scrollDirection';
+  static const _modeKey     = 'isScrollMode';
   static const _dualPageKey = 'isDualPageEnabled';
 
   @override
@@ -46,20 +46,17 @@ class MushafViewSettingsNotifier extends Notifier<MushafViewSettings> {
     final prefs = ref.read(sharedPrefsProv);
     return MushafViewSettings(
       scrollDirection: prefs.getString(_dirKey) == 'horizontal'
-          ? Axis.horizontal
-          : Axis.vertical,
-      isScrollMode: prefs.getBool(_modeKey) ?? false,
+          ? Axis.horizontal : Axis.vertical,
+      isScrollMode:      prefs.getBool(_modeKey)     ?? false,
       isDualPageEnabled: prefs.getBool(_dualPageKey) ?? false,
     );
   }
 
   void toggleScrollDirection() {
     final dir = state.scrollDirection == Axis.vertical
-        ? Axis.horizontal
-        : Axis.vertical;
+        ? Axis.horizontal : Axis.vertical;
     state = state.copyWith(scrollDirection: dir);
-    ref
-        .read(sharedPrefsProv)
+    ref.read(sharedPrefsProv)
         .setString(_dirKey, dir == Axis.horizontal ? 'horizontal' : 'vertical');
   }
 

@@ -24,12 +24,10 @@ class BookmarksNotifier extends Notifier<List<int>> {
 
   void _save(List<int> list) {
     state = list;
-    ref
-        .read(sharedPrefsProv)
+    ref.read(sharedPrefsProv)
         .setStringList(_key, list.map((e) => e.toString()).toList());
   }
 }
 
-final bookmarksProvider = NotifierProvider<BookmarksNotifier, List<int>>(
-  BookmarksNotifier.new,
-);
+final bookmarksProvider =
+    NotifierProvider<BookmarksNotifier, List<int>>(BookmarksNotifier.new);

@@ -11,19 +11,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 ///     scrolls continuously through pages. Navigation uses a pixel offset
 ///     (mushafPageIndex × itemExtent).
 class MushafControllerRegistry {
-  PageController? pageController;
+  PageController?   pageController;
   ScrollController? listController;
 
-  bool isDualPage = false;
-  bool useList = false; // true → landscape-vertical-single (ListView)
-  double itemExtent = 0; // tall item height, used for ListView math
+  bool   isDualPage = false;
+  bool   useList    = false; // true → landscape-vertical-single (ListView)
+  double itemExtent = 0;     // tall item height, used for ListView math
 
   void jumpToPage(int mushafPageIndex) {
     final i = mushafPageIndex.clamp(0, 603);
     if (useList) {
       final lc = listController;
       if (lc != null && lc.hasClients && itemExtent > 0) {
-        final target = (i * itemExtent).clamp(0.0, lc.position.maxScrollExtent);
+        final target = (i * itemExtent)
+            .clamp(0.0, lc.position.maxScrollExtent);
         lc.jumpTo(target);
       }
     } else {
@@ -51,6 +52,5 @@ class MushafControllerRegistry {
   }
 }
 
-final mushafControllerRegistryProvider = Provider<MushafControllerRegistry>(
-  (_) => MushafControllerRegistry(),
-);
+final mushafControllerRegistryProvider =
+    Provider<MushafControllerRegistry>((_) => MushafControllerRegistry());

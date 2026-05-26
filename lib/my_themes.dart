@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 // ─────────────────────────────────────────────────────────────────────────────
 
 enum AppTheme {
-  light('Light', Icons.wb_sunny_outlined),
-  white('White', Icons.brightness_high_outlined),
-  yellowCream('Yellow Cream', Icons.auto_awesome_outlined),
-  dark('Dark', Icons.nightlight_round),
-  oledBlack('OLED Black', Icons.brightness_1),
-  custom('Custom', Icons.palette_outlined);
+  light      ('Light',       Icons.wb_sunny_outlined),
+  white      ('White',       Icons.brightness_high_outlined),
+  yellowCream('Yellow Cream',Icons.auto_awesome_outlined),
+  dark       ('Dark',        Icons.nightlight_round),
+  oledBlack  ('OLED Black',  Icons.brightness_1),
+  custom     ('Custom',      Icons.palette_outlined);
 
   const AppTheme(this.label, this.icon);
   final String label;
@@ -22,66 +22,52 @@ enum AppTheme {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class MyThemes {
-  static const _seed = Color(0xFFB54040);
+  static const _seed     = Color(0xFFB54040);
 
   // ── Color schemes ──────────────────────────────────────────────────────────
 
-  static final ColorScheme _lightScheme = ColorScheme.fromSeed(
-    seedColor: _seed,
-    brightness: Brightness.light,
-  );
-  static final ColorScheme _darkScheme = ColorScheme.fromSeed(
-    seedColor: _seed,
-    brightness: Brightness.dark,
-  );
+  static final ColorScheme _lightScheme =
+      ColorScheme.fromSeed(seedColor: _seed, brightness: Brightness.light);
+  static final ColorScheme _darkScheme =
+      ColorScheme.fromSeed(seedColor: _seed, brightness: Brightness.dark);
 
   // OLED: force every surface token to true black so the NavRail, cards,
   // dialogs, and bottom sheets are all black — not just the scaffold.
-  static final ColorScheme _oledScheme =
-      ColorScheme.fromSeed(
-        seedColor: _seed,
-        brightness: Brightness.dark,
-      ).copyWith(
-        surface: Colors.black,
-        surfaceDim: Colors.black,
-        surfaceBright: const Color(0xFF111111),
-        surfaceContainerLowest: Colors.black,
-        surfaceContainerLow: const Color(0xFF080808),
-        surfaceContainer: const Color(0xFF0D0D0D),
-        surfaceContainerHigh: const Color(0xFF111111),
-        surfaceContainerHighest: const Color(0xFF161616),
-        onSurface: Colors.white,
-        onSurfaceVariant: const Color(0xFFCCCCCC),
-      );
+  static final ColorScheme _oledScheme = ColorScheme.fromSeed(
+    seedColor: _seed,
+    brightness: Brightness.dark,
+  ).copyWith(
+    surface:                 Colors.black,
+    surfaceDim:              Colors.black,
+    surfaceBright:           const Color(0xFF111111),
+    surfaceContainerLowest:  Colors.black,
+    surfaceContainerLow:     const Color(0xFF080808),
+    surfaceContainer:        const Color(0xFF0D0D0D),
+    surfaceContainerHigh:    const Color(0xFF111111),
+    surfaceContainerHighest: const Color(0xFF161616),
+    onSurface:               Colors.white,
+    onSurfaceVariant:        const Color(0xFFCCCCCC),
+  );
 
   // ── ThemeData getters ──────────────────────────────────────────────────────
 
-  static ThemeData get lightTheme => _build(_lightScheme, Brightness.light);
-  static ThemeData get whiteTheme =>
-      _build(_lightScheme, Brightness.light, scaffoldBg: Colors.white);
-  static ThemeData get darkTheme => _build(_darkScheme, Brightness.dark);
-  static ThemeData get yellowCreamTheme => _build(
-    _lightScheme,
-    Brightness.light,
-    scaffoldBg: const Color(0xFFF7EEC7),
-  );
-  static ThemeData get oledBlackTheme =>
-      _build(_oledScheme, Brightness.dark, scaffoldBg: Colors.black);
+  static ThemeData get lightTheme      => _build(_lightScheme, Brightness.light);
+  static ThemeData get whiteTheme      => _build(_lightScheme, Brightness.light,
+                                              scaffoldBg: Colors.white);
+  static ThemeData get darkTheme       => _build(_darkScheme,  Brightness.dark);
+  static ThemeData get yellowCreamTheme => _build(_lightScheme, Brightness.light,
+                                              scaffoldBg: const Color(0xFFF7EEC7));
+  static ThemeData get oledBlackTheme  => _build(_oledScheme,  Brightness.dark,
+                                              scaffoldBg: Colors.black);
 
   static ThemeData themeFor(AppTheme t) {
     switch (t) {
-      case AppTheme.light:
-        return lightTheme;
-      case AppTheme.white:
-        return whiteTheme;
-      case AppTheme.dark:
-        return darkTheme;
-      case AppTheme.yellowCream:
-        return yellowCreamTheme;
-      case AppTheme.oledBlack:
-        return oledBlackTheme;
-      case AppTheme.custom:
-        return lightTheme;
+      case AppTheme.light:       return lightTheme;
+      case AppTheme.white:       return whiteTheme;
+      case AppTheme.dark:        return darkTheme;
+      case AppTheme.yellowCream: return yellowCreamTheme;
+      case AppTheme.oledBlack:   return oledBlackTheme;
+      case AppTheme.custom:      return lightTheme;
     }
   }
 
@@ -107,26 +93,10 @@ class MyThemes {
         // The black areas merge with the dark container behind the page.
         // Dark vs OLED differ only in the container colour, not this filter.
         return const ColorFilter.matrix(<double>[
-          -1,
-          0,
-          0,
-          0,
-          255,
-          0,
-          -1,
-          0,
-          0,
-          255,
-          0,
-          0,
-          -1,
-          0,
-          255,
-          0,
-          0,
-          0,
-          1,
-          0,
+          -1, 0, 0, 0, 255,
+           0,-1, 0, 0, 255,
+           0, 0,-1, 0, 255,
+           0, 0, 0, 1,   0,
         ]);
 
       case AppTheme.custom:
@@ -134,26 +104,10 @@ class MyThemes {
         if (hsl.lightness < 0.5) {
           // Dark custom: invert content so text is readable on dark bg.
           return const ColorFilter.matrix(<double>[
-            -1,
-            0,
-            0,
-            0,
-            255,
-            0,
-            -1,
-            0,
-            0,
-            255,
-            0,
-            0,
-            -1,
-            0,
-            255,
-            0,
-            0,
-            0,
-            1,
-            0,
+            -1, 0, 0, 0, 255,
+             0,-1, 0, 0, 255,
+             0, 0,-1, 0, 255,
+             0, 0, 0, 1,   0,
           ]);
         }
         // Light custom: multiply-tint content (white areas pick up the colour).
@@ -163,26 +117,16 @@ class MyThemes {
 
   static Color pageBackgroundColor(AppTheme theme, Color customBg) {
     switch (theme) {
-      case AppTheme.light:
-        return const Color(0xFFE4D2B7);
-      case AppTheme.white:
-        return Colors.white;
-      case AppTheme.dark:
-        return const Color(0xFF1A0D05);
-      case AppTheme.yellowCream:
-        return const Color(0xFFE8D994);
-      case AppTheme.oledBlack:
-        return Colors.black;
+      case AppTheme.light:      return const Color(0xFFE4D2B7);
+      case AppTheme.white:      return Colors.white;
+      case AppTheme.dark:       return const Color(0xFF1A0D05);
+      case AppTheme.yellowCream: return const Color(0xFFE8D994);
+      case AppTheme.oledBlack:  return Colors.black;
       case AppTheme.custom:
         final hsl = HSLColor.fromColor(customBg);
-        return hsl
-            .withLightness(
-              (hsl.lightness + (hsl.lightness < 0.5 ? -0.05 : -0.08)).clamp(
-                0.0,
-                1.0,
-              ),
-            )
-            .toColor();
+        return hsl.withLightness(
+          (hsl.lightness + (hsl.lightness < 0.5 ? -0.05 : -0.08)).clamp(0.0, 1.0),
+        ).toColor();
     }
   }
 
@@ -190,12 +134,9 @@ class MyThemes {
     switch (theme) {
       case AppTheme.light:
       case AppTheme.white:
-      case AppTheme.yellowCream:
-        return Colors.black87;
-      case AppTheme.dark:
-        return const Color(0xFFE8D0B0);
-      case AppTheme.oledBlack:
-        return Colors.white;
+      case AppTheme.yellowCream: return Colors.black87;
+      case AppTheme.dark:        return const Color(0xFFE8D0B0);
+      case AppTheme.oledBlack:   return Colors.white;
       case AppTheme.custom:
         return HSLColor.fromColor(customBg).lightness < 0.5
             ? Colors.white
@@ -205,11 +146,8 @@ class MyThemes {
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 
-  static ThemeData _build(
-    ColorScheme scheme,
-    Brightness brightness, {
-    Color? scaffoldBg,
-  }) {
+  static ThemeData _build(ColorScheme scheme, Brightness brightness,
+      {Color? scaffoldBg}) {
     return ThemeData(
       colorScheme: scheme,
       brightness: brightness,
@@ -233,26 +171,10 @@ class MyThemes {
     final g = (color.g * 255.0).round().clamp(0, 255).toDouble();
     final b = (color.b * 255.0).round().clamp(0, 255).toDouble();
     return ColorFilter.matrix(<double>[
-      r / 255,
-      0,
-      0,
-      0,
-      0,
-      0,
-      g / 255,
-      0,
-      0,
-      0,
-      0,
-      0,
-      b / 255,
-      0,
-      0,
-      0,
-      0,
-      0,
-      1,
-      0,
+      r / 255, 0, 0, 0, 0,
+      0, g / 255, 0, 0, 0,
+      0, 0, b / 255, 0, 0,
+      0, 0, 0, 1, 0,
     ]);
   }
 }

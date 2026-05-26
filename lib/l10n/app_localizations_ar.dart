@@ -295,4 +295,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get aboutCreditsShort => '© Quran Quorum\nجميع الحقوق محفوظة.';
+
+  @override
+  String get juzIndexTitle => 'فهرس الأجزاء';
 }

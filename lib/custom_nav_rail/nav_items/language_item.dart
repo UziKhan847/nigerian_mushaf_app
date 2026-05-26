@@ -34,7 +34,7 @@ class _LanguageSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cs = Theme.of(context).colorScheme;
+    final cs      = Theme.of(context).colorScheme;
     final current = ref.watch(localeProvider)?.languageCode;
 
     return SafeArea(
@@ -46,8 +46,7 @@ class _LanguageSheet extends ConsumerWidget {
           children: [
             Center(
               child: Container(
-                width: 40,
-                height: 4,
+                width: 40, height: 4,
                 decoration: BoxDecoration(
                   color: cs.onSurfaceVariant.withAlpha(80),
                   borderRadius: BorderRadius.circular(2),
@@ -55,17 +54,14 @@ class _LanguageSheet extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 16),
-            Text(
-              AppLocalizations.of(context).languagePickerTitle,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text(AppLocalizations.of(context).languagePickerTitle,
+                style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 8),
             Flexible(
               child: RadioGroup<String?>(
                 groupValue: current,
                 onChanged: (code) {
-                  ref
-                      .read(localeProvider.notifier)
+                  ref.read(localeProvider.notifier)
                       .setLocale(code == null ? null : Locale(code));
                   Navigator.pop(context);
                 },
@@ -73,7 +69,10 @@ class _LanguageSheet extends ConsumerWidget {
                   shrinkWrap: true,
                   children: [
                     for (final (code, name) in appLanguages)
-                      RadioListTile<String?>(value: code, title: Text(name)),
+                      RadioListTile<String?>(
+                        value: code,
+                        title: Text(name),
+                      ),
                   ],
                 ),
               ),

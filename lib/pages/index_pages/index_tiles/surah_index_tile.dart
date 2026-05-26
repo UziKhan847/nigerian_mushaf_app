@@ -29,7 +29,9 @@ class SurahIndexTile extends ConsumerWidget {
           },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Row(
+            child: Directionality(
+              textDirection: TextDirection.ltr,
+              child: Row(
               children: [
                 Container(
                   width: 40,
@@ -64,10 +66,7 @@ class SurahIndexTile extends ConsumerWidget {
                       const SizedBox(height: 2),
                       Text(
                         AppLocalizations.of(context).surahPageRange(
-                          surah.firstPageNum,
-                          surah.lastPageNum,
-                          surah.lastVerseNum,
-                        ),
+                          surah.firstPageNum, surah.lastPageNum, surah.lastVerseNum),
                         style: TextStyle(
                           fontSize: 12,
                           color: cs.onSurface.withAlpha(150),
@@ -79,9 +78,10 @@ class SurahIndexTile extends ConsumerWidget {
                 Text(
                   'سورة ${surah.surahNum.surahNumToArabicName()}',
                   textDirection: TextDirection.rtl,
-                  style: const TextStyle(fontFamily: 'Nigerian', fontSize: 17),
+                  style: const TextStyle(fontFamily: 'Ruwudu', fontSize: 17, fontWeight: FontWeight.w700),
                 ),
               ],
+              ),
             ),
           ),
         ),

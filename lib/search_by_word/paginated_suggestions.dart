@@ -105,24 +105,27 @@ class _PaginatedSuggestionsState extends State<PaginatedSuggestions> {
         ),
 
         SliverList(
-          delegate: SliverChildBuilderDelegate((context, index) {
-            if (index.isOdd) {
-              return Divider(
-                height: 1,
-                thickness: 0.5,
-                indent: 20,
-                endIndent: 20,
-                color: Theme.of(
-                  context,
-                ).colorScheme.outlineVariant.withAlpha(120),
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              if (index.isOdd) {
+                return Divider(
+                  height: 1,
+                  thickness: 0.5,
+                  indent: 20,
+                  endIndent: 20,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.outlineVariant.withAlpha(120),
+                );
+              }
+              final verseIndex = index ~/ 2;
+              return VerseResultTile(
+                close: widget.close,
+                verse: widget.suggestions[verseIndex],
               );
-            }
-            final verseIndex = index ~/ 2;
-            return VerseResultTile(
-              close: widget.close,
-              verse: widget.suggestions[verseIndex],
-            );
-          }, childCount: visible * 2 - 1),
+            },
+            childCount: visible * 2 - 1,
+          ),
         ),
 
         // Load-more footer
@@ -135,9 +138,7 @@ class _PaginatedSuggestionsState extends State<PaginatedSuggestions> {
                   onPressed: _loadMore,
                   icon: const Icon(Icons.expand_more),
                   label: Text(
-                    AppLocalizations.of(
-                      context,
-                    ).searchLoadMore(count - visible),
+                    AppLocalizations.of(context).searchLoadMore(count - visible),
                   ),
                 ),
               ),

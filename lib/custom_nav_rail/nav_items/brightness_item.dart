@@ -12,7 +12,7 @@ class BrightnessItem extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final dimmed = ref.watch(screenDimProvider) > 0.01;
     return NavRailButton(
-      icon: dimmed ? Icons.brightness_3 : Icons.brightness_5,
+      icon:  dimmed ? Icons.brightness_3 : Icons.brightness_5,
       label: AppLocalizations.of(context).navBrightness,
       isActive: dimmed,
       onPressed: () {
@@ -36,7 +36,7 @@ class _BrightnessSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cs = Theme.of(context).colorScheme;
+    final cs  = Theme.of(context).colorScheme;
     final dim = ref.watch(screenDimProvider);
     // Slider shows brightness (1.0 = full). brightness = 1 - dim.
     final brightness = 1.0 - dim;
@@ -50,8 +50,7 @@ class _BrightnessSheet extends ConsumerWidget {
           children: [
             Center(
               child: Container(
-                width: 40,
-                height: 4,
+                width: 40, height: 4,
                 decoration: BoxDecoration(
                   color: cs.onSurfaceVariant.withAlpha(80),
                   borderRadius: BorderRadius.circular(2),
@@ -59,34 +58,27 @@ class _BrightnessSheet extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 16),
-            Text(
-              AppLocalizations.of(context).brightnessTitle,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text(AppLocalizations.of(context).brightnessTitle, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 8),
             Text(
               AppLocalizations.of(context).brightnessHint,
               style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
             ),
             const SizedBox(height: 12),
-            Row(
-              children: [
-                const Icon(Icons.brightness_3, size: 20),
-                Expanded(
-                  child: Slider(
-                    value: brightness.clamp(
-                      1.0 - ScreenDimNotifier.maxDim,
-                      1.0,
-                    ),
-                    min: 1.0 - ScreenDimNotifier.maxDim,
-                    max: 1.0,
-                    onChanged: (v) =>
-                        ref.read(screenDimProvider.notifier).set(1.0 - v),
-                  ),
+            Row(children: [
+              const Icon(Icons.brightness_3, size: 20),
+              Expanded(
+                child: Slider(
+                  value: brightness.clamp(
+                      1.0 - ScreenDimNotifier.maxDim, 1.0),
+                  min: 1.0 - ScreenDimNotifier.maxDim,
+                  max: 1.0,
+                  onChanged: (v) =>
+                      ref.read(screenDimProvider.notifier).set(1.0 - v),
                 ),
-                const Icon(Icons.brightness_5, size: 20),
-              ],
-            ),
+              ),
+              const Icon(Icons.brightness_5, size: 20),
+            ]),
           ],
         ),
       ),

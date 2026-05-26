@@ -19,6 +19,5 @@ class ScreenDimNotifier extends Notifier<double> {
   }
 }
 
-final screenDimProvider = NotifierProvider<ScreenDimNotifier, double>(
-  ScreenDimNotifier.new,
-);
+final screenDimProvider =
+    NotifierProvider<ScreenDimNotifier, double>(ScreenDimNotifier.new);

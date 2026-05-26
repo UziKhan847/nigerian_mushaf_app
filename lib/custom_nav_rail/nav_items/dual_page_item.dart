@@ -13,8 +13,8 @@ class DualPageItem extends ConsumerWidget {
       mushafViewSettingsProvider.select((s) => s.isDualPageEnabled),
     );
     return NavRailButton(
-      icon: Icons.auto_stories_outlined,
-      label: AppLocalizations.of(context).navDualPage,
+      icon:     Icons.auto_stories_outlined,
+      label:    AppLocalizations.of(context).navDualPage,
       isActive: enabled,
       onPressed: () =>
           ref.read(mushafViewSettingsProvider.notifier).toggleDualPage(),

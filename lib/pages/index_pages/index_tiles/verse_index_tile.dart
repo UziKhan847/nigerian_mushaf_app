@@ -49,23 +49,16 @@ class VerseIndexTile extends ConsumerWidget {
                   alignment: Alignment.centerLeft,
                   child: Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 3,
-                    ),
+                        horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
                       color: cs.primaryContainer.withAlpha(120),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
                       isHeader
-                          ? AppLocalizations.of(context).verseHeaderLocation(
-                              verse.surahNum.surahNumToEngName()!,
-                            )
+                          ? AppLocalizations.of(context).verseHeaderLocation(verse.surahNum.surahNumToEngName()!)
                           : AppLocalizations.of(context).verseLocation(
-                              verse.surahNum.surahNumToEngName()!,
-                              verse.verseNum,
-                              verse.page,
-                            ),
+                              verse.surahNum.surahNumToEngName()!, verse.verseNum, verse.page),
                       style: TextStyle(
                         fontSize: 11,
                         color: cs.onPrimaryContainer,

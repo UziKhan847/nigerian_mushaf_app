@@ -298,4 +298,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aboutCreditsShort => '© Quran Quorum\nAll rights reserved.';
+
+  @override
+  String get juzIndexTitle => 'Juz\' Index';
 }

@@ -58,18 +58,12 @@ class _ThemeSheet extends StatelessWidget {
   String _themeName(BuildContext context, AppTheme t) {
     final l = AppLocalizations.of(context);
     switch (t) {
-      case AppTheme.light:
-        return l.themeLight;
-      case AppTheme.white:
-        return l.themeWhite;
-      case AppTheme.yellowCream:
-        return l.themeYellowCream;
-      case AppTheme.dark:
-        return l.themeDark;
-      case AppTheme.oledBlack:
-        return l.themeOled;
-      case AppTheme.custom:
-        return l.themeCustom;
+      case AppTheme.light:       return l.themeLight;
+      case AppTheme.white:       return l.themeWhite;
+      case AppTheme.yellowCream: return l.themeYellowCream;
+      case AppTheme.dark:        return l.themeDark;
+      case AppTheme.oledBlack:   return l.themeOled;
+      case AppTheme.custom:      return l.themeCustom;
     }
   }
 
@@ -88,8 +82,7 @@ class _ThemeSheet extends StatelessWidget {
             // Handle bar
             Center(
               child: Container(
-                width: 40,
-                height: 4,
+                width: 40, height: 4,
                 decoration: BoxDecoration(
                   color: cs.onSurfaceVariant.withAlpha(80),
                   borderRadius: BorderRadius.circular(2),
@@ -97,10 +90,7 @@ class _ThemeSheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 18),
-            Text(
-              AppLocalizations.of(context).themePickerTitle,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text(AppLocalizations.of(context).themePickerTitle, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 8),
 
             // Scrollable list so it never overflows on small / landscape screens.
@@ -114,18 +104,15 @@ class _ThemeSheet extends StatelessWidget {
                   children: AppTheme.values.map((t) {
                     final isSelected = t == current;
                     return ListTile(
-                      leading: Icon(
-                        t.icon,
-                        color: isSelected ? cs.primary : cs.onSurfaceVariant,
-                      ),
+                      leading: Icon(t.icon,
+                          color: isSelected ? cs.primary : cs.onSurfaceVariant),
                       title: Text(_themeName(context, t)),
                       trailing: isSelected
                           ? Icon(Icons.check_circle, color: cs.primary)
                           : null,
                       selected: isSelected,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                          borderRadius: BorderRadius.circular(12)),
                       onTap: () => onSelect(t),
                     );
                   }).toList(),

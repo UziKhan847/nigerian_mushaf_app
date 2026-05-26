@@ -5,6 +5,7 @@ import 'package:nigerian_mushaf_app/custom_nav_rail/nav_rail_button.dart';
 import 'package:nigerian_mushaf_app/providers/bookmarks_provider.dart';
 import 'package:nigerian_mushaf_app/providers/current_page_provider.dart';
 import 'package:nigerian_mushaf_app/providers/mushaf_navigate_provider.dart';
+import 'package:nigerian_mushaf_app/data/mushaf_index_data.dart';
 
 class BookmarksItem extends ConsumerWidget {
   const BookmarksItem({super.key, required this.removeOverlay});
@@ -12,10 +13,10 @@ class BookmarksItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cur = ref.watch(currentMushafPageProvider);
+    final cur    = ref.watch(currentMushafPageProvider);
     final marked = ref.watch(bookmarksProvider).contains(cur);
     return NavRailButton(
-      icon: marked ? Icons.bookmark : Icons.bookmark_border,
+      icon:  marked ? Icons.bookmark : Icons.bookmark_border,
       label: AppLocalizations.of(context).navBookmarks,
       isActive: marked,
       onPressed: () {
@@ -39,9 +40,9 @@ class _BookmarksSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cs = Theme.of(context).colorScheme;
-    final cur = ref.watch(currentMushafPageProvider);
-    final marks = ref.watch(bookmarksProvider);
+    final cs     = Theme.of(context).colorScheme;
+    final cur    = ref.watch(currentMushafPageProvider);
+    final marks  = ref.watch(bookmarksProvider);
     final marked = marks.contains(cur);
 
     return SafeArea(
@@ -53,8 +54,7 @@ class _BookmarksSheet extends ConsumerWidget {
           children: [
             Center(
               child: Container(
-                width: 40,
-                height: 4,
+                width: 40, height: 4,
                 decoration: BoxDecoration(
                   color: cs.onSurfaceVariant.withAlpha(80),
                   borderRadius: BorderRadius.circular(2),
@@ -62,21 +62,17 @@ class _BookmarksSheet extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 16),
-            Text(
-              AppLocalizations.of(context).bookmarksTitle,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text(AppLocalizations.of(context).bookmarksTitle, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 12),
 
             // Add / remove the current page.
             FilledButton.tonalIcon(
-              onPressed: () => ref.read(bookmarksProvider.notifier).toggle(cur),
+              onPressed: () =>
+                  ref.read(bookmarksProvider.notifier).toggle(cur),
               icon: Icon(marked ? Icons.bookmark_remove : Icons.bookmark_add),
-              label: Text(
-                marked
-                    ? AppLocalizations.of(context).bookmarkRemove(cur + 1)
-                    : AppLocalizations.of(context).bookmarkAdd(cur + 1),
-              ),
+              label: Text(marked
+                  ? AppLocalizations.of(context).bookmarkRemove(cur + 1)
+                  : AppLocalizations.of(context).bookmarkAdd(cur + 1)),
             ),
             const SizedBox(height: 12),
 
@@ -84,17 +80,14 @@ class _BookmarksSheet extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 24),
                 child: Center(
-                  child: Text(
-                    AppLocalizations.of(context).bookmarksEmpty,
-                    style: TextStyle(color: cs.onSurfaceVariant),
-                  ),
+                  child: Text(AppLocalizations.of(context).bookmarksEmpty,
+                      style: TextStyle(color: cs.onSurfaceVariant)),
                 ),
               )
             else
               ConstrainedBox(
                 constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height * 0.45,
-                ),
+                    maxHeight: MediaQuery.of(context).size.height * 0.45),
                 child: ListView.builder(
                   shrinkWrap: true,
                   itemCount: marks.length,
@@ -102,9 +95,8 @@ class _BookmarksSheet extends ConsumerWidget {
                     final page = marks[i];
                     return ListTile(
                       leading: const Icon(Icons.bookmark),
-                      title: Text(
-                        AppLocalizations.of(context).bookmarkPage(page + 1),
-                      ),
+                      title: Text(AppLocalizations.of(context).bookmarkPage(page + 1)),
+                      subtitle: Text(surahNameForPage(page + 1)),
                       trailing: IconButton(
                         icon: const Icon(Icons.close),
                         onPressed: () =>

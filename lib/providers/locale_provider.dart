@@ -23,9 +23,8 @@ class LocaleNotifier extends Notifier<Locale?> {
   }
 }
 
-final localeProvider = NotifierProvider<LocaleNotifier, Locale?>(
-  LocaleNotifier.new,
-);
+final localeProvider =
+    NotifierProvider<LocaleNotifier, Locale?>(LocaleNotifier.new);
 
 /// Languages offered in the picker (code → endonym).
 const appLanguages = <(String?, String)>[

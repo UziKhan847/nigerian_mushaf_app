@@ -58,10 +58,7 @@ class MySearchDelegate extends SearchDelegate {
     var s = text.removeTashkilExceptSmallMaddLetters;
 
     // Strip common proclitic prefixes: و ف ب ل ك ال
-    s = s.replaceAll(
-      RegExp(r'^(وال|فال|بال|كال|لل|وَ|فَ|بِ|لِ|كَ|و|ف|ب|ل|ك|ال)'),
-      '',
-    );
+    s = s.replaceAll(RegExp(r'^(وال|فال|بال|كال|لل|وَ|فَ|بِ|لِ|كَ|و|ف|ب|ل|ك|ال)'), '');
 
     // Strip common enclitic suffixes: ون ين ات ة ها هم هن كم وا ني تم ا ي ه
     s = s.replaceAll(
@@ -182,9 +179,7 @@ class _ModeBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
         color: cs.surfaceContainerLow,
-        border: Border(
-          bottom: BorderSide(color: cs.outlineVariant, width: 0.5),
-        ),
+        border: Border(bottom: BorderSide(color: cs.outlineVariant, width: 0.5)),
       ),
       child: SegmentedButton<SearchMode>(
         segments: SearchMode.values.map((m) {
@@ -207,12 +202,9 @@ class _ModeBar extends StatelessWidget {
   String _modeLabel(BuildContext context, SearchMode m) {
     final l = AppLocalizations.of(context);
     switch (m) {
-      case SearchMode.qiyas:
-        return l.searchModeQiyas;
-      case SearchMode.uthmani:
-        return l.searchModeUthmani;
-      case SearchMode.root:
-        return l.searchModeRoot;
+      case SearchMode.qiyas:   return l.searchModeQiyas;
+      case SearchMode.uthmani: return l.searchModeUthmani;
+      case SearchMode.root:    return l.searchModeRoot;
     }
   }
 
@@ -239,12 +231,9 @@ class _EmptyState extends StatelessWidget {
   String _hintFor(BuildContext context) {
     final l = AppLocalizations.of(context);
     switch (mode) {
-      case SearchMode.qiyas:
-        return l.searchHintQiyas;
-      case SearchMode.uthmani:
-        return l.searchHintUthmani;
-      case SearchMode.root:
-        return l.searchHintRoot;
+      case SearchMode.qiyas:   return l.searchHintQiyas;
+      case SearchMode.uthmani: return l.searchHintUthmani;
+      case SearchMode.root:    return l.searchHintRoot;
     }
   }
 

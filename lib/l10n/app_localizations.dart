@@ -603,6 +603,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'© Quran Quorum\nAll rights reserved.'**
   String get aboutCreditsShort;
+
+  /// AppBar title of the Juz index page.
+  ///
+  /// In en, this message translates to:
+  /// **'Juz\' Index'**
+  String get juzIndexTitle;
 }
 
 class _AppLocalizationsDelegate

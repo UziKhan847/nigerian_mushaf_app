@@ -36,7 +36,11 @@ class PageIndexTile extends ConsumerWidget {
           },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Row(
+            // Keep the tile layout fixed (badge left, Arabic label right) in
+            // every locale — don't mirror under an RTL (Arabic) UI.
+            child: Directionality(
+              textDirection: TextDirection.ltr,
+              child: Row(
               children: [
                 Container(
                   width: 48,
@@ -66,9 +70,10 @@ class PageIndexTile extends ConsumerWidget {
                 Text(
                   'الصفحة ${page.pageNum}',
                   textDirection: TextDirection.rtl,
-                  style: const TextStyle(fontFamily: 'Nigerian', fontSize: 16),
+                  style: const TextStyle(fontFamily: 'Ruwudu', fontSize: 16, fontWeight: FontWeight.w700),
                 ),
               ],
+              ),
             ),
           ),
         ),

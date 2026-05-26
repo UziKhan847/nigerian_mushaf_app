@@ -7,7 +7,8 @@ class CurrentPageNotifier extends Notifier<int> {
   static const _key = 'lastPage';
 
   @override
-  int build() => (ref.read(sharedPrefsProv).getInt(_key) ?? 0).clamp(0, 603);
+  int build() =>
+      (ref.read(sharedPrefsProv).getInt(_key) ?? 0).clamp(0, 603);
 
   void setPage(int page) {
     final p = page.clamp(0, 603);
@@ -17,6 +18,5 @@ class CurrentPageNotifier extends Notifier<int> {
   }
 }
 
-final currentMushafPageProvider = NotifierProvider<CurrentPageNotifier, int>(
-  CurrentPageNotifier.new,
-);
+final currentMushafPageProvider =
+    NotifierProvider<CurrentPageNotifier, int>(CurrentPageNotifier.new);

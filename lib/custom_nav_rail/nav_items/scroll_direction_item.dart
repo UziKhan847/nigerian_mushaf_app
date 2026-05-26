@@ -14,9 +14,7 @@ class ScrollDirectionItem extends ConsumerWidget {
 
     return NavRailButton(
       icon: isVertical ? Icons.swap_vert : Icons.swap_horiz,
-      label: isVertical
-          ? AppLocalizations.of(context).navVertical
-          : AppLocalizations.of(context).navHorizontal,
+      label: isVertical ? AppLocalizations.of(context).navVertical : AppLocalizations.of(context).navHorizontal,
       isActive: true,
       onPressed: () {
         ref.read(mushafViewSettingsProvider.notifier).toggleScrollDirection();

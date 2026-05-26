@@ -22,9 +22,7 @@ class AboutPage extends StatelessWidget {
       body: LayoutBuilder(
         builder: (context, constraints) {
           final isLandscape = constraints.maxWidth > constraints.maxHeight;
-          return isLandscape
-              ? _LandscapeLayout(cs: cs)
-              : _PortraitLayout(cs: cs);
+          return isLandscape ? _LandscapeLayout(cs: cs) : _PortraitLayout(cs: cs);
         },
       ),
     );
@@ -112,49 +110,36 @@ class _HeroCard extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.menu_book_rounded,
-              size: compact ? 56 : 72,
-              color: cs.onPrimaryContainer,
-            ),
+            Icon(Icons.menu_book_rounded,
+                size: compact ? 56 : 72, color: cs.onPrimaryContainer),
             const SizedBox(height: 16),
             // Always-Arabic title line.
-            Text(
-              'المصحف النيجيري',
-              textDirection: TextDirection.rtl,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontFamily: 'Ruwudu',
-                fontSize: compact ? 24 : 30,
-                fontWeight: FontWeight.w700,
-                color: cs.onPrimaryContainer,
-                height: 1.4,
-              ),
-            ),
+            Text('المصحف النيجيري',
+                textDirection: TextDirection.rtl,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontFamily: 'Ruwudu',
+                    fontSize: compact ? 24 : 30,
+                    fontWeight: FontWeight.w700,
+                    color: cs.onPrimaryContainer,
+                    height: 1.4)),
             const SizedBox(height: 8),
-            Text(
-              l.appTitle,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: compact ? 18 : 22,
-                fontWeight: FontWeight.bold,
-                color: cs.onPrimaryContainer,
-              ),
-            ),
+            Text(l.appTitle,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontSize: compact ? 18 : 22,
+                    fontWeight: FontWeight.bold,
+                    color: cs.onPrimaryContainer)),
             const SizedBox(height: 6),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: BoxDecoration(
-                color: cs.onPrimaryContainer.withAlpha(30),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                l.appBy,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: cs.onPrimaryContainer.withAlpha(200),
-                ),
-              ),
+                  color: cs.onPrimaryContainer.withAlpha(30),
+                  borderRadius: BorderRadius.circular(20)),
+              child: Text(l.appBy,
+                  style: TextStyle(
+                      fontSize: 13,
+                      color: cs.onPrimaryContainer.withAlpha(200))),
             ),
           ],
         ),
@@ -173,10 +158,8 @@ class _DescriptionCard extends StatelessWidget {
       cs: cs,
       title: l.aboutSectionAbout,
       icon: Icons.info_outline,
-      child: Text(
-        l.aboutDescription,
-        style: const TextStyle(fontSize: 15, height: 1.7),
-      ),
+      child: Text(l.aboutDescription,
+          style: const TextStyle(fontSize: 15, height: 1.7)),
     );
   }
 }
@@ -188,14 +171,14 @@ class _FeaturesCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final features = <(IconData, String)>[
-      (Icons.image_outlined, l.featImages),
-      (Icons.dark_mode_outlined, l.featThemes),
-      (Icons.swap_vert, l.featModes),
+      (Icons.image_outlined,        l.featImages),
+      (Icons.dark_mode_outlined,    l.featThemes),
+      (Icons.swap_vert,             l.featModes),
       (Icons.auto_stories_outlined, l.featDualZoom),
-      (Icons.search, l.featSearch),
-      (Icons.list_alt_outlined, l.featIndexes),
-      (Icons.bookmark_border, l.featBookmarks),
-      (Icons.brightness_3, l.featBrightness),
+      (Icons.search,                l.featSearch),
+      (Icons.list_alt_outlined,     l.featIndexes),
+      (Icons.bookmark_border,       l.featBookmarks),
+      (Icons.brightness_3,          l.featBrightness),
     ];
     return _SectionCard(
       cs: cs,
@@ -209,20 +192,16 @@ class _FeaturesCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 36,
-                  height: 36,
+                  width: 36, height: 36,
                   margin: const EdgeInsets.only(right: 14, top: 2),
                   decoration: BoxDecoration(
-                    color: cs.primary.withAlpha(20),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                      color: cs.primary.withAlpha(20),
+                      borderRadius: BorderRadius.circular(8)),
                   child: Icon(f.$1, size: 18, color: cs.primary),
                 ),
                 Expanded(
-                  child: Text(
-                    f.$2,
-                    style: const TextStyle(fontSize: 14, height: 1.5),
-                  ),
+                  child: Text(f.$2,
+                      style: const TextStyle(fontSize: 14, height: 1.5)),
                 ),
               ],
             ),
@@ -241,11 +220,11 @@ class _TechCard extends StatelessWidget {
     final l = AppLocalizations.of(context);
     // Labels localised; values are proper nouns / numbers (kept as-is).
     final items = <(String, String)>[
-      (l.techFramework, 'Flutter (Dart)'),
-      (l.techState, 'Riverpod'),
-      (l.techRendering, 'Two-layer PNG (ink + borders)'),
+      (l.techFramework,   'Flutter (Dart)'),
+      (l.techState,       'Riverpod'),
+      (l.techRendering,   'Two-layer PNG (ink + borders)'),
       (l.techImagesLabel, '1930 × 2480 px'),
-      (l.techPagesLabel, '604'),
+      (l.techPagesLabel,  '604'),
     ];
     return _SectionCard(
       cs: cs,
@@ -259,14 +238,11 @@ class _TechCard extends StatelessWidget {
               children: [
                 SizedBox(
                   width: 110,
-                  child: Text(
-                    item.$1,
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: cs.onSurface.withAlpha(180),
-                    ),
-                  ),
+                  child: Text(item.$1,
+                      style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: cs.onSurface.withAlpha(180))),
                 ),
                 Expanded(
                   child: Text(item.$2, style: const TextStyle(fontSize: 13)),
@@ -292,22 +268,12 @@ class _CreditsCard extends StatelessWidget {
       title: l.aboutSectionCredits,
       icon: Icons.favorite_outline,
       child: compact
-          ? Text(
-              l.aboutCreditsShort,
+          ? Text(l.aboutCreditsShort,
               textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 13, color: cs.onSurface.withAlpha(180)))
+          : Text(l.aboutCreditsBody,
               style: TextStyle(
-                fontSize: 13,
-                color: cs.onSurface.withAlpha(180),
-              ),
-            )
-          : Text(
-              l.aboutCreditsBody,
-              style: TextStyle(
-                fontSize: 13,
-                height: 1.6,
-                color: cs.onSurface.withAlpha(200),
-              ),
-            ),
+                  fontSize: 13, height: 1.6, color: cs.onSurface.withAlpha(200))),
     );
   }
 }
@@ -334,20 +300,15 @@ class _SectionCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Icon(icon, size: 18, color: cs.primary),
-                const SizedBox(width: 8),
-                Text(
-                  title,
+            Row(children: [
+              Icon(icon, size: 18, color: cs.primary),
+              const SizedBox(width: 8),
+              Text(title,
                   style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: cs.primary,
-                  ),
-                ),
-              ],
-            ),
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: cs.primary)),
+            ]),
             const SizedBox(height: 14),
             child,
           ],

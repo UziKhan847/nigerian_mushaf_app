@@ -12,10 +12,8 @@ class ZoomPageItem extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isZoom = ref.watch(isZoomedInProvider);
     return NavRailButton(
-      icon: isZoom ? Icons.zoom_out_rounded : Icons.zoom_in_rounded,
-      label: isZoom
-          ? AppLocalizations.of(context).navExitZoom
-          : AppLocalizations.of(context).navZoomPage,
+      icon:     isZoom ? Icons.zoom_out_rounded : Icons.zoom_in_rounded,
+      label: isZoom ? AppLocalizations.of(context).navExitZoom : AppLocalizations.of(context).navZoomPage,
       isActive: isZoom,
       onPressed: () {
         if (isZoom) {
