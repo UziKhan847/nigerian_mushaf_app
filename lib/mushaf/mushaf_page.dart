@@ -73,7 +73,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
   // ── Two-layer image ────────────────────────────────────────────────────────
   Widget _layeredImage(ThemeState ts, double w, double h) {
     final n       = widget.index + 1;
-    final filter  = MyThemes.pageColorFilter(ts.appTheme, ts.customBgColor);
+    final filter  = MyThemes.pageColorFilter(ts.appTheme, ts.pageColor);
     final decodeW = _decodeWidth(context);
 
     Widget content = Image.asset('assets/pages/content/$n.png',
@@ -100,7 +100,7 @@ class _MushafPageState extends ConsumerState<MushafPage> {
   Widget build(BuildContext context) {
     final ts       = ref.watch(themeProvider);
     final zoomMode = ref.watch(isZoomedInProvider);
-    final bgColor  = MyThemes.pageBackgroundColor(ts.appTheme, ts.customBgColor);
+    final bgColor  = MyThemes.pageBackgroundColor(ts.appTheme, ts.pageColor);
 
     // When zoom mode is deactivated externally (button / double-tap on another
     // page), reset this page's transform back to identity.
@@ -258,8 +258,8 @@ class _LVPState extends State<LandscapeVerticalPage> {
 
     return Consumer(builder: (_, ref, _) {
       final ts      = ref.watch(themeProvider);
-      final bgColor = MyThemes.pageBackgroundColor(ts.appTheme, ts.customBgColor);
-      final filter  = MyThemes.pageColorFilter(ts.appTheme, ts.customBgColor);
+      final bgColor = MyThemes.pageBackgroundColor(ts.appTheme, ts.pageColor);
+      final filter  = MyThemes.pageColorFilter(ts.appTheme, ts.pageColor);
       final n = widget.index + 1;
 
       Widget content = Image.asset('assets/pages/content/$n.png',
@@ -315,7 +315,7 @@ class _MushafPageHeaderBar extends StatelessWidget {
     final surah = surahNameArForPage(page);
     final juz   = juzForPage(page);
     final ink   = MyThemes.pageHeaderInkColor(
-        themeState.appTheme, themeState.customBgColor);
+        themeState.appTheme, themeState.pageColor);
 
     // Scale the font with the page width so dual-page (narrow) spreads don't
     // get an oversized header relative to the small pages.

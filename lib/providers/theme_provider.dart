@@ -3,15 +3,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nigerian_mushaf_app/my_themes.dart';
 import 'package:nigerian_mushaf_app/providers/shared_prefs_provider.dart';
 
+/// App chrome theme + independent mushaf page colour.
+///
+/// [pageColor] (default white) only affects the page rendering in the light
+/// theme; Dark and OLED always render the page inverted on a dark container.
 class ThemeState {
-  const ThemeState({required this.appTheme, required this.customBgColor});
+  const ThemeState({required this.appTheme, required this.pageColor});
 
   final AppTheme appTheme;
-  final Color customBgColor;
+  final Color pageColor;
 
-  ThemeState copyWith({AppTheme? appTheme, Color? customBgColor}) => ThemeState(
-    appTheme: appTheme ?? this.appTheme,
-    customBgColor: customBgColor ?? this.customBgColor,
+  ThemeState copyWith({AppTheme? appTheme, Color? pageColor}) => ThemeState(
+    appTheme:  appTheme  ?? this.appTheme,
+    pageColor: pageColor ?? this.pageColor,
   );
 }
 
@@ -20,33 +24,43 @@ final themeProvider = NotifierProvider<ThemeNotifier, ThemeState>(
 );
 
 class ThemeNotifier extends Notifier<ThemeState> {
-  static const _themeKey    = 'appTheme';
-  static const _customBgKey = 'customBgColor';
+  static const _themeKey = 'appTheme';
+  // Key kept from the old "custom background" feature so existing users keep
+  // their saved colour.
+  static const _pageColorKey = 'customBgColor';
 
   @override
   ThemeState build() {
     final prefs = ref.read(sharedPrefsProv);
 
-    // Theme
-    final themeName = prefs.getString(_themeKey);
-    AppTheme appTheme = AppTheme.light;
-    if (themeName != null) {
-      appTheme = AppTheme.values.firstWhere(
-        (e) => e.name == themeName,
-        orElse: () => AppTheme.light,
-      );
-    } else {
-      // Migrate legacy isDarkMode flag.
-      final wasDark = prefs.getBool('isDarkMode') ?? false;
-      appTheme = wasDark ? AppTheme.dark : AppTheme.light;
+    final saved = prefs.getString(_themeKey);
+    AppTheme appTheme;
+    Color? legacyPageColor;
+    switch (saved) {
+      case 'light':     appTheme = AppTheme.light; break;
+      case 'dark':      appTheme = AppTheme.dark; break;
+      case 'oledBlack': appTheme = AppTheme.oledBlack; break;
+      // Legacy values from when the app theme and page colour were coupled:
+      case 'white':
+        appTheme = AppTheme.light;
+        legacyPageColor = Colors.white;
+        break;
+      case 'yellowCream':
+        appTheme = AppTheme.light;
+        legacyPageColor = const Color(0xFFF7EEC7);
+        break;
+      case 'custom':
+        appTheme = AppTheme.light; // saved colour below still applies
+        break;
+      default:
+        final wasDark = prefs.getBool('isDarkMode') ?? false;
+        appTheme = wasDark ? AppTheme.dark : AppTheme.light;
     }
 
-    // Custom background colour — toARGB32() replaces the deprecated .value
-    final colorInt = prefs.getInt(_customBgKey) ??
-        const Color(0xFFE4D2B7).toARGB32();
-    final customBg = Color(colorInt);
+    final pageColor = legacyPageColor ??
+        Color(prefs.getInt(_pageColorKey) ?? Colors.white.toARGB32());
 
-    return ThemeState(appTheme: appTheme, customBgColor: customBg);
+    return ThemeState(appTheme: appTheme, pageColor: pageColor);
   }
 
   void setTheme(AppTheme theme) {
@@ -54,9 +68,8 @@ class ThemeNotifier extends Notifier<ThemeState> {
     ref.read(sharedPrefsProv).setString(_themeKey, theme.name);
   }
 
-  void setCustomBgColor(Color color) {
-    state = state.copyWith(customBgColor: color);
-    // toARGB32() is the non-deprecated replacement for Color.value
-    ref.read(sharedPrefsProv).setInt(_customBgKey, color.toARGB32());
+  void setPageColor(Color color) {
+    state = state.copyWith(pageColor: color);
+    ref.read(sharedPrefsProv).setInt(_pageColorKey, color.toARGB32());
   }
 }

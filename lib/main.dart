@@ -45,7 +45,7 @@ class MyApp extends ConsumerWidget {
     final themeState = ref.watch(themeProvider);
     final locale     = ref.watch(localeProvider);
     final pageBg = MyThemes.pageBackgroundColor(
-      themeState.appTheme, themeState.customBgColor,
+      themeState.appTheme, themeState.pageColor,
     );
 
     return MaterialApp(

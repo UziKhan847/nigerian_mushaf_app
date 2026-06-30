@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// AppTheme — enum with constructor (no separate extension needed)
+// AppTheme — the APP CHROME only (nav rail, sheets, index pages, About…).
+//
+// The mushaf PAGE colour is independent (ThemeState.pageColor, default white)
+// and is chosen with the Page Colour picker. The two only interact in Dark and
+// OLED, where the page is always rendered inverted on a dark container.
 // ─────────────────────────────────────────────────────────────────────────────
 
 enum AppTheme {
-  light      ('Light',       Icons.wb_sunny_outlined),
-  white      ('White',       Icons.brightness_high_outlined),
-  yellowCream('Yellow Cream',Icons.auto_awesome_outlined),
-  dark       ('Dark',        Icons.nightlight_round),
-  oledBlack  ('OLED Black',  Icons.brightness_1),
-  custom     ('Custom',      Icons.palette_outlined);
+  light    ('Light',      Icons.wb_sunny_outlined),
+  dark     ('Dark',       Icons.nightlight_round),
+  oledBlack('OLED Black', Icons.brightness_1);
 
   const AppTheme(this.label, this.icon);
   final String label;
@@ -22,12 +23,33 @@ enum AppTheme {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class MyThemes {
-  static const _seed     = Color(0xFFB54040);
+  // Warm amber seed (matches the cream-and-orange design language).
+  static const _seed = Color(0xFFD97E22);
+
+  // Light palette (from the reference design):
+  static const _cream      = Color(0xFFF8F2E5); // scaffold / surface
+  static const _creamCard  = Color(0xFFFFFDF7); // cards / sheets
+  static const _warmInk    = Color(0xFF33291B); // primary text
+  static const _warmInkDim = Color(0xFF6F6353); // secondary text
 
   // ── Color schemes ──────────────────────────────────────────────────────────
 
-  static final ColorScheme _lightScheme =
-      ColorScheme.fromSeed(seedColor: _seed, brightness: Brightness.light);
+  static final ColorScheme _lightScheme = ColorScheme.fromSeed(
+    seedColor: _seed,
+    brightness: Brightness.light,
+  ).copyWith(
+    surface:                 _cream,
+    onSurface:               _warmInk,
+    onSurfaceVariant:        _warmInkDim,
+    surfaceDim:              const Color(0xFFEFE7D6),
+    surfaceBright:           _creamCard,
+    surfaceContainerLowest:  Colors.white,
+    surfaceContainerLow:     _creamCard,
+    surfaceContainer:        const Color(0xFFFBF7EC),
+    surfaceContainerHigh:    const Color(0xFFF3ECDD),
+    surfaceContainerHighest: const Color(0xFFEDE4D2),
+  );
+
   static final ColorScheme _darkScheme =
       ColorScheme.fromSeed(seedColor: _seed, brightness: Brightness.dark);
 
@@ -49,102 +71,80 @@ class MyThemes {
     onSurfaceVariant:        const Color(0xFFCCCCCC),
   );
 
-  // ── ThemeData getters ──────────────────────────────────────────────────────
+  // ── ThemeData ──────────────────────────────────────────────────────────────
 
-  static ThemeData get lightTheme      => _build(_lightScheme, Brightness.light);
-  static ThemeData get whiteTheme      => _build(_lightScheme, Brightness.light,
-                                              scaffoldBg: Colors.white);
-  static ThemeData get darkTheme       => _build(_darkScheme,  Brightness.dark);
-  static ThemeData get yellowCreamTheme => _build(_lightScheme, Brightness.light,
-                                              scaffoldBg: const Color(0xFFF7EEC7));
-  static ThemeData get oledBlackTheme  => _build(_oledScheme,  Brightness.dark,
-                                              scaffoldBg: Colors.black);
+  static ThemeData get lightTheme =>
+      _build(_lightScheme, Brightness.light, scaffoldBg: _cream);
+  static ThemeData get darkTheme  => _build(_darkScheme, Brightness.dark);
+  static ThemeData get oledBlackTheme =>
+      _build(_oledScheme, Brightness.dark, scaffoldBg: Colors.black);
 
   static ThemeData themeFor(AppTheme t) {
     switch (t) {
-      case AppTheme.light:       return lightTheme;
-      case AppTheme.white:       return whiteTheme;
-      case AppTheme.dark:        return darkTheme;
-      case AppTheme.yellowCream: return yellowCreamTheme;
-      case AppTheme.oledBlack:   return oledBlackTheme;
-      case AppTheme.custom:      return lightTheme;
+      case AppTheme.light:     return lightTheme;
+      case AppTheme.dark:      return darkTheme;
+      case AppTheme.oledBlack: return oledBlackTheme;
     }
   }
 
-  // ── Mushaf page colour filters ─────────────────────────────────────────────
+  // ── Mushaf page rendering (independent of app chrome, except dark/OLED) ────
 
-  static ColorFilter? pageColorFilter(AppTheme theme, Color customBg) {
+  static bool _isNearWhite(Color c) =>
+      c.r > 0.97 && c.g > 0.97 && c.b > 0.97;
+
+  /// Filter for the CONTENT layer only (the ink). The BORDER layer (coloured
+  /// decorations) is always stacked on top unfiltered, preserving its colours.
+  static ColorFilter? pageColorFilter(AppTheme theme, Color pageColor) {
     switch (theme) {
-      case AppTheme.light:
-      case AppTheme.white:
-        return null; // show as-is
-
-      case AppTheme.yellowCream:
-        // Warm yellow-cream tint matching high-quality printed Arabic books.
-        return _multiplyFilter(const Color(0xFFF7EEC7));
-
       case AppTheme.dark:
       case AppTheme.oledBlack:
-        // Applied to the CONTENT layer only (text/black parts of the page).
-        // The BORDER layer (coloured decorations) is stacked on top without
-        // any filter, so all original colours are always preserved.
-        //
-        // Simple invert:  black text → white,  white paper → black.
-        // The black areas merge with the dark container behind the page.
-        // Dark vs OLED differ only in the container colour, not this filter.
-        return const ColorFilter.matrix(<double>[
-          -1, 0, 0, 0, 255,
-           0,-1, 0, 0, 255,
-           0, 0,-1, 0, 255,
-           0, 0, 0, 1,   0,
-        ]);
+        // Always inverted: black ink → white, white paper → black; the black
+        // merges with the dark container. pageColor is intentionally ignored.
+        return _invert;
 
-      case AppTheme.custom:
-        final hsl = HSLColor.fromColor(customBg);
-        if (hsl.lightness < 0.5) {
-          // Dark custom: invert content so text is readable on dark bg.
-          return const ColorFilter.matrix(<double>[
-            -1, 0, 0, 0, 255,
-             0,-1, 0, 0, 255,
-             0, 0,-1, 0, 255,
-             0, 0, 0, 1,   0,
-          ]);
-        }
-        // Light custom: multiply-tint content (white areas pick up the colour).
-        return _multiplyFilter(customBg);
-    }
-  }
-
-  static Color pageBackgroundColor(AppTheme theme, Color customBg) {
-    switch (theme) {
-      case AppTheme.light:      return const Color(0xFFE4D2B7);
-      case AppTheme.white:      return Colors.white;
-      case AppTheme.dark:       return const Color(0xFF1A0D05);
-      case AppTheme.yellowCream: return const Color(0xFFE8D994);
-      case AppTheme.oledBlack:  return Colors.black;
-      case AppTheme.custom:
-        final hsl = HSLColor.fromColor(customBg);
-        return hsl.withLightness(
-          (hsl.lightness + (hsl.lightness < 0.5 ? -0.05 : -0.08)).clamp(0.0, 1.0),
-        ).toColor();
-    }
-  }
-
-  static Color pageHeaderInkColor(AppTheme theme, Color customBg) {
-    switch (theme) {
       case AppTheme.light:
-      case AppTheme.white:
-      case AppTheme.yellowCream: return Colors.black87;
-      case AppTheme.dark:        return const Color(0xFFE8D0B0);
-      case AppTheme.oledBlack:   return Colors.white;
-      case AppTheme.custom:
-        return HSLColor.fromColor(customBg).lightness < 0.5
+        if (_isNearWhite(pageColor)) return null; // default: show as-is
+        if (HSLColor.fromColor(pageColor).lightness < 0.5) {
+          // Dark page colour chosen → invert ink so it stays readable.
+          return _invert;
+        }
+        // Light tint: multiply (white paper picks up the colour, ink stays).
+        return _multiplyFilter(pageColor);
+    }
+  }
+
+  /// Container colour painted around/behind the page image.
+  static Color pageBackgroundColor(AppTheme theme, Color pageColor) {
+    switch (theme) {
+      case AppTheme.dark:      return const Color(0xFF1A0D05);
+      case AppTheme.oledBlack: return Colors.black;
+      case AppTheme.light:
+        final hsl = HSLColor.fromColor(pageColor);
+        return hsl
+            .withLightness((hsl.lightness - 0.07).clamp(0.0, 1.0))
+            .toColor();
+    }
+  }
+
+  static Color pageHeaderInkColor(AppTheme theme, Color pageColor) {
+    switch (theme) {
+      case AppTheme.dark:      return const Color(0xFFE8D0B0);
+      case AppTheme.oledBlack: return Colors.white;
+      case AppTheme.light:
+        return HSLColor.fromColor(pageColor).lightness < 0.5
             ? Colors.white
             : Colors.black87;
     }
   }
 
   // ── Helpers ────────────────────────────────────────────────────────────────
+
+  static const _invert = ColorFilter.matrix(<double>[
+    -1, 0, 0, 0, 255,
+     0,-1, 0, 0, 255,
+     0, 0,-1, 0, 255,
+     0, 0, 0, 1,   0,
+  ]);
 
   static ThemeData _build(ColorScheme scheme, Brightness brightness,
       {Color? scaffoldBg}) {
@@ -155,13 +155,28 @@ class MyThemes {
       fontFamily: 'Ruwudu',
       scaffoldBackgroundColor: scaffoldBg,
       appBarTheme: AppBarTheme(
-        backgroundColor: scheme.surface,
+        backgroundColor: scaffoldBg ?? scheme.surface,
         foregroundColor: scheme.onSurface,
         elevation: 0,
         scrolledUnderElevation: 1,
       ),
+      cardTheme: CardThemeData(
+        elevation: 0,
+        color: scheme.surfaceContainerLow,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: scheme.surfaceContainerLow,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+      ),
       listTileTheme: const ListTileThemeData(
         contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      ),
+      sliderTheme: SliderThemeData(
+        activeTrackColor: scheme.primary,
+        thumbColor: scheme.primary,
       ),
     );
   }

@@ -58,12 +58,9 @@ class _ThemeSheet extends StatelessWidget {
   String _themeName(BuildContext context, AppTheme t) {
     final l = AppLocalizations.of(context);
     switch (t) {
-      case AppTheme.light:       return l.themeLight;
-      case AppTheme.white:       return l.themeWhite;
-      case AppTheme.yellowCream: return l.themeYellowCream;
-      case AppTheme.dark:        return l.themeDark;
-      case AppTheme.oledBlack:   return l.themeOled;
-      case AppTheme.custom:      return l.themeCustom;
+      case AppTheme.light:     return l.themeLight;
+      case AppTheme.dark:      return l.themeDark;
+      case AppTheme.oledBlack: return l.themeOled;
     }
   }
 

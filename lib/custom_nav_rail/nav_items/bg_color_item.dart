@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:nigerian_mushaf_app/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nigerian_mushaf_app/custom_nav_rail/nav_rail_button.dart';
-import 'package:nigerian_mushaf_app/my_themes.dart';
 import 'package:nigerian_mushaf_app/providers/theme_provider.dart';
 
 class BgColorItem extends ConsumerWidget {
@@ -11,11 +10,14 @@ class BgColorItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isCustom = ref.watch(themeProvider).appTheme == AppTheme.custom;
+    // Active when the page colour differs from the default (white).
+    final pageColor = ref.watch(themeProvider).pageColor;
+    final isTinted =
+        pageColor.r <= 0.97 || pageColor.g <= 0.97 || pageColor.b <= 0.97;
     return NavRailButton(
       icon: Icons.color_lens_outlined,
       label: AppLocalizations.of(context).navPageColour,
-      isActive: isCustom,
+      isActive: isTinted,
       onPressed: () {
         final ctx = context;
         removeOverlay();
@@ -29,13 +31,9 @@ class BgColorItem extends ConsumerWidget {
             builder: (sheetCtx, ref, _) {
               final ts = ref.watch(themeProvider);
               return _BgColorSheet(
-                currentColor: ts.customBgColor,
-                onColorChanged: (c) {
-                  ref.read(themeProvider.notifier).setCustomBgColor(c);
-                  if (ts.appTheme != AppTheme.custom) {
-                    ref.read(themeProvider.notifier).setTheme(AppTheme.custom);
-                  }
-                },
+                currentColor: ts.pageColor,
+                onColorChanged: (c) =>
+                    ref.read(themeProvider.notifier).setPageColor(c),
               );
             },
           ),
@@ -193,7 +191,8 @@ class _BgColorSheetState extends State<_BgColorSheet> {
   }
 
   static const _presets = [
-    Color(0xFFFFFFFF),
+    Color(0xFFFFFFFF), // default (white)
+    Color(0xFFF7EEC7), // yellow cream
     Color(0xFFE4D2B7),
     Color(0xFFD4C5A0),
     Color(0xFFC8E6C9),
